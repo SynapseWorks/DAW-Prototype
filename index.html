@@ -97,6 +97,30 @@ button:hover{transform:translateY(-2px)}
 .step.active{background:var(--hot);box-shadow:0 0 16px rgba(255,45,149,.55)}
 .step.playing{outline:2px solid var(--gold);transform:scale(1.08)}
 .synth-step select{width:100%;font-size:.75rem;padding:.35rem}
+.piano-roll{display:grid;gap:.35rem}
+.piano-row{display:grid;grid-template-columns:60px repeat(16,1fr);gap:.35rem;align-items:center}
+.piano-note-label{color:#f8b3d4;font-weight:800;font-size:.85rem}
+.piano-cell{
+  height:30px;
+  border-radius:8px;
+  background:#13071d;
+  border:1px solid rgba(255,45,149,.22);
+  cursor:pointer;
+}
+.piano-cell.active{background:var(--fire);box-shadow:0 0 14px rgba(255,107,61,.55)}
+.piano-cell.playing{outline:2px solid var(--gold);transform:scale(1.05)}
+.arrangement-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem}
+.arrange-btn{
+  background:#16071f;
+  color:#f4d8ff;
+  border:1px solid rgba(255,45,149,.25);
+  border-radius:16px;
+  padding:1rem;
+}
+.arrange-btn.active{
+  background:linear-gradient(135deg,var(--hot),#711aff);
+  box-shadow:0 0 22px rgba(255,45,149,.45);
+}
 .track-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem}
 .track-name{font-size:1.2rem;font-weight:800;color:#ff7db7;letter-spacing:.08em}
 .track-controls{display:flex;gap:.5rem;flex-wrap:wrap}
@@ -123,7 +147,7 @@ canvas{
 }
 .kbd{
   display:grid;
-  grid-template-columns:repeat(12,1fr);
+  grid-template-columns:repeat(8,1fr);
   gap:.4rem;
   margin-top:.75rem;
 }
@@ -138,8 +162,9 @@ canvas{
 }
 .key.on{background:var(--hot);box-shadow:0 0 16px rgba(255,45,149,.6)}
 @media(max-width:850px){
-  .track-bottom,.mini-controls{grid-template-columns:1fr}
+  .track-bottom,.mini-controls,.arrangement-grid{grid-template-columns:1fr}
   .seq-row{grid-template-columns:70px repeat(8,1fr)}
+  .piano-row{grid-template-columns:50px repeat(8,1fr)}
   .kbd{grid-template-columns:repeat(4,1fr)}
 }
 </style>
@@ -173,6 +198,16 @@ canvas{
   <section class="visual-panel">
     <h2 class="section-title">HELLSCOPE VISUALIZER</h2>
     <canvas id="visualizer" width="1200" height="240"></canvas>
+  </section>
+
+  <section class="sequencer">
+    <h2 class="section-title">ARRANGEMENT VIEW</h2>
+    <div class="arrangement-grid">
+      <button class="arrange-btn active" data-section="intro">INTRO</button>
+      <button class="arrange-btn" data-section="verse">VERSE</button>
+      <button class="arrange-btn" data-section="chorus">CHORUS</button>
+      <button class="arrange-btn" data-section="breakdown">BREAKDOWN</button>
+    </div>
   </section>
 
   <section class="sequencer">
@@ -230,6 +265,30 @@ canvas{
   </section>
 
   <section class="sequencer">
+    <h2 class="section-title">PIANO ROLL / MELODY GRID</h2>
+
+    <div class="sequencer-actions">
+      <label>Lead Volume
+        <input id="leadVolume" type="range" min="0" max="1" step="0.01" value="0.3" />
+      </label>
+
+      <label>Lead Wave
+        <select id="leadWave">
+          <option value="triangle">Triangle</option>
+          <option value="sine">Sine</option>
+          <option value="sawtooth">Saw</option>
+          <option value="square">Square</option>
+        </select>
+      </label>
+
+      <button class="small-btn" id="randomizePianoRoll">RANDOMIZE MELODY</button>
+      <button class="small-btn" id="clearPianoRoll">CLEAR MELODY</button>
+    </div>
+
+    <div id="pianoRoll"></div>
+  </section>
+
+  <section class="sequencer">
     <h2 class="section-title">CLIP TRACKS / SAMPLE PACK</h2>
     <div id="tracks"></div>
   </section>
@@ -266,9 +325,7 @@ function makeDistortionCurve(amount){
 distortionNode.curve=makeDistortionCurve(0);
 distortionNode.oversample="4x";
 
-function safeDisconnect(node){
-  try{node.disconnect()}catch{}
-}
+function safeDisconnect(node){try{node.disconnect()}catch{}}
 
 function connectMasterChain(){
   safeDisconnect(masterGain);
@@ -300,6 +357,7 @@ const bpmInput=document.getElementById("bpmInput");
 const metronomeToggle=document.getElementById("metronomeToggle");
 const sequencerGrid=document.getElementById("sequencerGrid");
 const synthGrid=document.getElementById("synthGrid");
+const pianoRollEl=document.getElementById("pianoRoll");
 
 const tracks=[];
 let activeSources=[];
@@ -307,6 +365,7 @@ let schedulerTimer=null;
 let currentBeat=0;
 let currentStep=0;
 let nextBeatTime=0;
+let currentSection="intro";
 
 const lookahead=25;
 const scheduleAheadTime=.1;
@@ -352,8 +411,46 @@ const sampleLibrary={
 };
 
 const synthNotes=["","C2","D2","Eb2","F2","G2","Ab2","Bb2","C3","D3","Eb3","F3","G3","Ab3","Bb3","C4"];
-
 let synthPattern=["C2","","","C2","G2","","","Eb2","C2","","Bb2","","Ab2","","G2",""];
+
+const pianoNotes=["C4","Bb3","Ab3","G3","F3","Eb3","D3","C3"];
+let pianoRollPattern=pianoNotes.map(()=>Array.from({length:16},()=>0));
+
+const songSections={
+  intro:{
+    drums:[
+      [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+      [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+      [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]
+    ],
+    synth:["C2","","","","G2","","","","C2","","","","Bb2","","",""],
+    melody:makeMelody(["","","","","C4","","","","Bb3","","","","Ab3","","",""])
+  },
+  verse:{
+    drums:presets.basic,
+    synth:["C2","","","C2","G2","","","Eb2","C2","","Bb2","","Ab2","","G2",""],
+    melody:makeMelody(["","","Eb3","","","","G3","","","","F3","","","","C4",""])
+  },
+  chorus:{
+    drums:presets.industrial,
+    synth:["C2","","G2","","Bb2","","G2","","C3","","Bb2","","Ab2","","G2",""],
+    melody:makeMelody(["C4","","","Bb3","Ab3","","G3","","F3","","G3","","Bb3","","C4",""])
+  },
+  breakdown:{
+    drums:presets.ritual,
+    synth:["C2","","","","","","Bb2","","C2","","","","Ab2","","","G2"],
+    melody:makeMelody(["","","","","","","","","C4","","","","","","Bb3",""])
+  }
+};
+
+function makeMelody(stepNotes){
+  const grid=pianoNotes.map(()=>Array.from({length:16},()=>0));
+  stepNotes.forEach((note,stepIndex)=>{
+    const noteIndex=pianoNotes.indexOf(note);
+    if(noteIndex>=0)grid[noteIndex][stepIndex]=1;
+  });
+  return grid;
+}
 
 function buildSequencer(){
   sequencerGrid.innerHTML="";
@@ -404,17 +501,35 @@ function buildSynthSequencer(){
   synthGrid.appendChild(rowEl);
 }
 
+function buildPianoRoll(){
+  pianoRollEl.innerHTML="";
+  pianoRollEl.className="piano-roll";
+
+  pianoNotes.forEach((note,noteIndex)=>{
+    const row=document.createElement("div");
+    row.className="piano-row";
+    row.innerHTML=`<div class="piano-note-label">${note}</div>`;
+
+    for(let stepIndex=0;stepIndex<16;stepIndex++){
+      const cell=document.createElement("button");
+      cell.className="piano-cell";
+
+      if(pianoRollPattern[noteIndex][stepIndex])cell.classList.add("active");
+
+      cell.addEventListener("click",()=>{
+        pianoRollPattern[noteIndex][stepIndex]=pianoRollPattern[noteIndex][stepIndex]?0:1;
+        cell.classList.toggle("active",!!pianoRollPattern[noteIndex][stepIndex]);
+      });
+
+      row.appendChild(cell);
+    }
+
+    pianoRollEl.appendChild(row);
+  });
+}
+
 function createTrack(index){
-  const track={
-    buffer:null,
-    sampleName:"",
-    volume:.8,
-    pan:0,
-    filter:12000,
-    muted:false,
-    solo:false,
-    gainNode:null
-  };
+  const track={buffer:null,sampleName:"",volume:.8,pan:0,filter:12000,muted:false,solo:false,gainNode:null};
   tracks.push(track);
 
   const el=document.createElement("div");
@@ -515,6 +630,7 @@ function stopTransport(){
   schedulerTimer=null;
   stopAll();
   clearStepHighlights();
+  clearPianoHighlights();
   currentBeat=0;
   currentStep=0;
   beatDisplay.textContent="BAR 1 : BEAT 1";
@@ -537,14 +653,14 @@ function scheduleStep(stepNumber,time){
   setTimeout(()=>{
     beatDisplay.textContent=`BAR ${barNumber} : BEAT ${beatInBar+1}`;
     highlightStep(stepNumber);
+    highlightPianoRollStep(stepNumber);
   },Math.max(0,(time-audioContext.currentTime)*1000));
 
   drumRows.forEach(row=>{if(row.pattern[stepNumber])playBuffer(row.sound,time,.85)});
   playSynthNote(synthPattern[stepNumber],time);
+  playPianoRollStep(stepNumber,time);
 
-  if(metronomeToggle.checked&&stepNumber%4===0){
-    playClick(time,stepNumber===0);
-  }
+  if(metronomeToggle.checked&&stepNumber%4===0)playClick(time,stepNumber===0);
 }
 
 function playAllClips(startTime){
@@ -562,7 +678,6 @@ function playAllClips(startTime){
 
     source.buffer=track.buffer;
     source.loop=loop;
-
     gainNode.gain.value=track.volume;
     panNode.pan.value=track.pan;
     filterNode.type="lowpass";
@@ -640,6 +755,42 @@ function playSynthNote(note,time,duration=secondsPerStep()*.95){
   osc.stop(time+duration+.03);
 }
 
+function playLeadNote(note,time){
+  const frequency=noteToFrequency(note);
+  if(!frequency)return;
+
+  const osc=audioContext.createOscillator();
+  const gain=audioContext.createGain();
+  const filter=audioContext.createBiquadFilter();
+
+  const volume=Number(document.getElementById("leadVolume").value);
+  const wave=document.getElementById("leadWave").value;
+
+  osc.type=wave;
+  osc.frequency.setValueAtTime(frequency,time);
+
+  filter.type="lowpass";
+  filter.frequency.setValueAtTime(1800,time);
+  filter.Q.setValueAtTime(4,time);
+
+  gain.gain.setValueAtTime(.001,time);
+  gain.gain.exponentialRampToValueAtTime(volume,time+.015);
+  gain.gain.exponentialRampToValueAtTime(.001,time+secondsPerStep()*.85);
+
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(masterGain);
+
+  osc.start(time);
+  osc.stop(time+secondsPerStep()*.9);
+}
+
+function playPianoRollStep(stepNumber,time){
+  pianoNotes.forEach((note,noteIndex)=>{
+    if(pianoRollPattern[noteIndex][stepNumber])playLeadNote(note,time);
+  });
+}
+
 function highlightStep(stepNumber){
   clearStepHighlights();
   document.querySelectorAll(".seq-row").forEach(row=>{
@@ -650,6 +801,18 @@ function highlightStep(stepNumber){
 
 function clearStepHighlights(){
   document.querySelectorAll(".step.playing").forEach(step=>step.classList.remove("playing"));
+}
+
+function highlightPianoRollStep(stepNumber){
+  clearPianoHighlights();
+  document.querySelectorAll(".piano-row").forEach(row=>{
+    const cells=row.querySelectorAll(".piano-cell");
+    if(cells[stepNumber])cells[stepNumber].classList.add("playing");
+  });
+}
+
+function clearPianoHighlights(){
+  document.querySelectorAll(".piano-cell.playing").forEach(cell=>cell.classList.remove("playing"));
 }
 
 function stopAll(){
@@ -673,6 +836,33 @@ function refreshSequencerButtons(){
 
 function refreshSynthButtons(){
   synthGrid.querySelectorAll("select").forEach((select,index)=>select.value=synthPattern[index]);
+}
+
+function refreshPianoRoll(){
+  document.querySelectorAll(".piano-row").forEach((row,noteIndex)=>{
+    row.querySelectorAll(".piano-cell").forEach((cell,stepIndex)=>{
+      cell.classList.toggle("active",!!pianoRollPattern[noteIndex][stepIndex]);
+    });
+  });
+}
+
+function applySection(sectionName){
+  const section=songSections[sectionName];
+  if(!section)return;
+
+  currentSection=sectionName;
+  applyPattern(section.drums);
+  synthPattern=[...section.synth];
+  pianoRollPattern=section.melody.map(row=>[...row]);
+
+  refreshSynthButtons();
+  refreshPianoRoll();
+
+  document.querySelectorAll(".arrange-btn").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.section===sectionName);
+  });
+
+  statusEl.textContent=`${sectionName.toUpperCase()} section loaded.`;
 }
 
 function startRecording(){
@@ -706,7 +896,8 @@ function stopRecording(){
 function getProjectData(){
   return{
     app:"Signal Studio",
-    version:2,
+    version:3,
+    currentSection,
     bpm:Number(bpmInput.value),
     loopClips:document.getElementById("loopToggle").checked,
     metronome:metronomeToggle.checked,
@@ -715,6 +906,12 @@ function getProjectData(){
       pattern:synthPattern,
       wave:document.getElementById("synthWave").value,
       volume:Number(document.getElementById("synthVolume").value)
+    },
+    pianoRoll:{
+      notes:pianoNotes,
+      pattern:pianoRollPattern,
+      volume:Number(document.getElementById("leadVolume").value),
+      wave:document.getElementById("leadWave").value
     },
     effects:{
       masterVolume:Number(document.getElementById("masterVolume").value),
@@ -750,6 +947,7 @@ function loadProjectData(project){
     return;
   }
 
+  currentSection=project.currentSection||"intro";
   bpmInput.value=project.bpm||120;
   document.getElementById("loopToggle").checked=project.loopClips??true;
   metronomeToggle.checked=project.metronome??true;
@@ -766,6 +964,13 @@ function loadProjectData(project){
     document.getElementById("synthWave").value=project.synth.wave||"sawtooth";
     document.getElementById("synthVolume").value=project.synth.volume??.35;
     refreshSynthButtons();
+  }
+
+  if(project.pianoRoll){
+    pianoRollPattern=project.pianoRoll.pattern||pianoRollPattern;
+    document.getElementById("leadVolume").value=project.pianoRoll.volume??.3;
+    document.getElementById("leadWave").value=project.pianoRoll.wave||"triangle";
+    refreshPianoRoll();
   }
 
   if(project.effects){
@@ -789,6 +994,10 @@ function loadProjectData(project){
       track.solo=saved.solo??false;
     });
   }
+
+  document.querySelectorAll(".arrange-btn").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.section===currentSection);
+  });
 
   statusEl.textContent="Project imported.";
 }
@@ -985,6 +1194,18 @@ document.getElementById("clearSynth").addEventListener("click",()=>{
   statusEl.textContent="Synth pattern cleared.";
 });
 
+document.getElementById("randomizePianoRoll").addEventListener("click",()=>{
+  pianoRollPattern=pianoNotes.map(()=>Array.from({length:16},()=>Math.random()>.86?1:0));
+  refreshPianoRoll();
+  statusEl.textContent="Melody randomized.";
+});
+
+document.getElementById("clearPianoRoll").addEventListener("click",()=>{
+  pianoRollPattern=pianoNotes.map(()=>Array.from({length:16},()=>0));
+  refreshPianoRoll();
+  statusEl.textContent="Melody cleared.";
+});
+
 document.getElementById("aiPattern").addEventListener("click",summonPattern);
 document.getElementById("masterVolume").addEventListener("input",applyEffectsFromUI);
 document.getElementById("distortionAmount").addEventListener("input",applyEffectsFromUI);
@@ -996,15 +1217,17 @@ document.getElementById("importProjectBtn").addEventListener("click",()=>documen
 document.getElementById("importProjectInput").addEventListener("change",async e=>{
   const file=e.target.files[0];
   if(!file)return;
-  try{
-    loadProjectData(JSON.parse(await file.text()));
-  }catch{
-    statusEl.textContent="Could not import project JSON.";
-  }
+  try{loadProjectData(JSON.parse(await file.text()))}
+  catch{statusEl.textContent="Could not import project JSON."}
+});
+
+document.querySelectorAll(".arrange-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>applySection(btn.dataset.section));
 });
 
 buildSequencer();
 buildSynthSequencer();
+buildPianoRoll();
 for(let i=0;i<4;i++)createTrack(i);
 drawVisualizer();
 </script>
