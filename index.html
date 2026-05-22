@@ -39,6 +39,13 @@ input[type=range]{width:100%}
 select{background:#12061a;color:#f3d7ff;border:1px solid rgba(255,45,149,.25);padding:.7rem;border-radius:12px}
 .status{text-align:center;margin-top:1rem;color:#bba2cf;opacity:.8}
 @media(max-width:850px){.track-bottom{grid-template-columns:1fr}.seq-row{grid-template-columns:70px repeat(8,1fr)}.seq-row .step:nth-child(n+10){margin-top:.3rem}}
+
+  .sequencer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
 </style>
 </head>
 
@@ -65,6 +72,15 @@ select{background:#12061a;color:#f3d7ff;border:1px solid rgba(255,45,149,.25);pa
 
   <section class="sequencer">
     <h2 class="section-title">RITUAL DRUM SEQUENCER</h2>
+    <div class="sequencer-actions">
+  <button class="small-btn" id="presetBasic">BASIC</button>
+  <button class="small-btn" id="presetIndustrial">INDUSTRIAL</button>
+  <button class="small-btn" id="presetRitual">RITUAL</button>
+  <button class="small-btn" id="randomizePattern">RANDOMIZE</button>
+  <button class="small-btn" id="clearPattern">CLEAR</button>
+  <button class="small-btn" id="savePattern">SAVE</button>
+  <button class="small-btn" id="loadPattern">LOAD</button>
+</div>
     <div id="sequencerGrid"></div>
   </section>
 
@@ -415,6 +431,95 @@ function createHatBuffer() {
   return buffer;
 }
 
+const presets = {
+  basic: [
+    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+    [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+    [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]
+  ],
+  industrial: [
+    [1,0,0,1,1,0,0,1,1,0,1,0,1,0,0,1],
+    [0,0,1,0,0,1,0,0,0,0,1,0,0,1,0,0],
+    [1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1]
+  ],
+  ritual: [
+    [1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0],
+    [0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1],
+    [1,0,0,1,0,1,0,0,1,0,0,1,0,1,0,0]
+  ]
+};
+
+function applyPattern(patternSet) {
+  drumRows.forEach((row, rowIndex) => {
+    row.pattern = [...patternSet[rowIndex]];
+  });
+
+  refreshSequencerButtons();
+}
+
+function refreshSequencerButtons() {
+  const rows = document.querySelectorAll(".seq-row");
+
+  rows.forEach((rowEl, rowIndex) => {
+    const steps = rowEl.querySelectorAll(".step");
+
+    steps.forEach((stepEl, stepIndex) => {
+      stepEl.classList.toggle("active", !!drumRows[rowIndex].pattern[stepIndex]);
+    });
+  });
+}
+
+document.getElementById("presetBasic").addEventListener("click", () => {
+  applyPattern(presets.basic);
+  statusEl.textContent = "Basic pattern loaded.";
+});
+
+document.getElementById("presetIndustrial").addEventListener("click", () => {
+  applyPattern(presets.industrial);
+  statusEl.textContent = "Industrial pattern loaded.";
+});
+
+document.getElementById("presetRitual").addEventListener("click", () => {
+  applyPattern(presets.ritual);
+  statusEl.textContent = "Ritual pattern loaded.";
+});
+
+document.getElementById("randomizePattern").addEventListener("click", () => {
+  drumRows.forEach(row => {
+    row.pattern = row.pattern.map(() => Math.random() > 0.65 ? 1 : 0);
+  });
+
+  refreshSequencerButtons();
+  statusEl.textContent = "Pattern randomized.";
+});
+
+document.getElementById("clearPattern").addEventListener("click", () => {
+  drumRows.forEach(row => {
+    row.pattern = row.pattern.map(() => 0);
+  });
+
+  refreshSequencerButtons();
+  statusEl.textContent = "Pattern cleared.";
+});
+
+document.getElementById("savePattern").addEventListener("click", () => {
+  const savedPattern = drumRows.map(row => row.pattern);
+  localStorage.setItem("signalStudioPattern", JSON.stringify(savedPattern));
+  statusEl.textContent = "Pattern saved to browser.";
+});
+
+document.getElementById("loadPattern").addEventListener("click", () => {
+  const saved = localStorage.getItem("signalStudioPattern");
+
+  if (!saved) {
+    statusEl.textContent = "No saved pattern found.";
+    return;
+  }
+
+  applyPattern(JSON.parse(saved));
+  statusEl.textContent = "Saved pattern loaded.";
+});
+  
 document.getElementById("playBtn").addEventListener("click", async () => {
   await audioContext.resume();
   stopTransport();
