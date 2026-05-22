@@ -5,44 +5,281 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Signal Studio</title>
 <style>
+:root{
+  --bg:#05010a;
+  --panel:rgba(14,5,20,.9);
+  --panel-2:#12061a;
+  --neon:#ff2d95;
+  --ember:#ff6b3d;
+  --gold:#ffef8a;
+  --text:#f4d8ff;
+  --muted:#bba2cf;
+  --line:rgba(255,45,149,.22);
+}
+
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(circle at top,rgba(255,0,90,.08),transparent 40%),linear-gradient(180deg,#05010a,#0d0216 50%,#030104);color:#f4d8ff;font-family:"Segoe UI",sans-serif;min-height:100vh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px);background-size:100% 4px;opacity:.15;animation:scan 10s linear infinite}
-@keyframes scan{from{transform:translateY(0)}to{transform:translateY(4px)}}
-header{text-align:center;padding:2rem 1rem}
-h1{margin:0;font-size:clamp(2rem,5vw,4rem);letter-spacing:.2em;color:#ff2d95;text-shadow:0 0 10px #ff2d95,0 0 20px #ff2d95,0 0 40px rgba(255,45,149,.5)}
-.subtitle{margin-top:1rem;color:#9f8bb7;letter-spacing:.08em}
-.container{width:min(1200px,95%);margin:auto;padding-bottom:4rem}
-.transport,.sequencer,.track{background:rgba(14,5,20,.9);border:1px solid rgba(255,45,149,.2);border-radius:24px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 0 25px rgba(255,45,149,.08),inset 0 0 20px rgba(255,255,255,.015)}
-.transport{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:center}
-button{border:none;cursor:pointer;padding:.8rem 1.3rem;border-radius:999px;font-weight:bold;letter-spacing:.08em;transition:.2s}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at top,rgba(255,0,90,.08),transparent 40%),
+    radial-gradient(circle at 80% 10%,rgba(255,107,61,.08),transparent 25%),
+    linear-gradient(180deg,#05010a,#0d0216 50%,#030104);
+  color:var(--text);
+  font-family:"Segoe UI",system-ui,sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:100% 4px;
+  opacity:.15;
+  animation:scan 10s linear infinite;
+}
+
+@keyframes scan{
+  from{transform:translateY(0)}
+  to{transform:translateY(4px)}
+}
+
+header{
+  text-align:center;
+  padding:2rem 1rem;
+}
+
+h1{
+  margin:0;
+  font-size:clamp(2rem,5vw,4rem);
+  letter-spacing:.2em;
+  color:var(--neon);
+  text-shadow:
+    0 0 10px var(--neon),
+    0 0 20px var(--neon),
+    0 0 40px rgba(255,45,149,.5);
+}
+
+.subtitle{
+  margin-top:1rem;
+  color:#9f8bb7;
+  letter-spacing:.08em;
+}
+
+.container{
+  width:min(1200px,95%);
+  margin:auto;
+  padding-bottom:4rem;
+}
+
+.transport,.sequencer,.track{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:1.25rem;
+  margin-bottom:1rem;
+  box-shadow:
+    0 0 25px rgba(255,45,149,.08),
+    inset 0 0 20px rgba(255,255,255,.015);
+}
+
+.transport{
+  display:flex;
+  flex-wrap:wrap;
+  gap:1rem;
+  align-items:center;
+  justify-content:center;
+}
+
+button{
+  border:none;
+  cursor:pointer;
+  padding:.8rem 1.3rem;
+  border-radius:999px;
+  font-weight:800;
+  letter-spacing:.08em;
+  transition:.2s;
+}
+
 button:hover{transform:translateY(-2px)}
-.play-btn{background:linear-gradient(135deg,#ff2d95,#ff6b3d);color:white;box-shadow:0 0 20px rgba(255,45,149,.35)}
-.stop-btn{background:#2b0d1d;color:#ff8dc0;border:1px solid rgba(255,45,149,.4)}
-.small-btn{background:#1d0b26;color:#e8c6ff;border:1px solid rgba(255,45,149,.2);padding:.5rem .8rem}
-.small-btn.active{background:#ff2d95;color:white;box-shadow:0 0 15px rgba(255,45,149,.4)}
-.bpm-control,.beat-display{background:#12061a;color:#f3d7ff;border:1px solid rgba(255,45,149,.25);padding:.75rem 1rem;border-radius:14px}
-.bpm-control input{width:80px;background:#05010a;color:#f3d7ff;border:1px solid rgba(255,45,149,.3);border-radius:8px;padding:.35rem}
-.beat-display{min-width:130px;text-align:center;color:#ff7db7;font-weight:bold}
-.section-title{color:#ff7db7;letter-spacing:.12em;margin:0 0 1rem}
-.sequencer-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;align-items:center}
-.seq-row{display:grid;grid-template-columns:90px repeat(16,1fr);gap:.45rem;align-items:center;margin:.65rem 0}
-.seq-label{font-weight:bold;color:#f8b3d4}
-.step{height:38px;border-radius:10px;background:#16071f;border:1px solid rgba(255,45,149,.25);cursor:pointer}
-.step.active{background:#ff2d95;box-shadow:0 0 16px rgba(255,45,149,.55)}
-.step.playing{outline:2px solid #ffef8a;transform:scale(1.08)}
-.synth-step{display:grid;grid-template-columns:1fr;gap:.25rem}
-.synth-step select{width:100%;font-size:.75rem;padding:.35rem}
-.track-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem}
-.track-name{font-size:1.2rem;font-weight:bold;color:#ff7db7;letter-spacing:.08em}
-.track-controls{display:flex;gap:.5rem}
-.track-bottom{display:grid;grid-template-columns:1fr 200px 160px;gap:1rem;margin-top:1rem;align-items:center}
+button:active{transform:translateY(0)}
+
+.play-btn{
+  background:linear-gradient(135deg,var(--neon),var(--ember));
+  color:white;
+  box-shadow:0 0 20px rgba(255,45,149,.35);
+}
+
+.stop-btn{
+  background:#2b0d1d;
+  color:#ff8dc0;
+  border:1px solid rgba(255,45,149,.4);
+}
+
+.small-btn{
+  background:#1d0b26;
+  color:#e8c6ff;
+  border:1px solid rgba(255,45,149,.2);
+  padding:.55rem .85rem;
+}
+
+.small-btn.active{
+  background:var(--neon);
+  color:white;
+  box-shadow:0 0 15px rgba(255,45,149,.4);
+}
+
+.control-pill,.bpm-control,.beat-display{
+  background:var(--panel-2);
+  color:#f3d7ff;
+  border:1px solid rgba(255,45,149,.25);
+  padding:.75rem 1rem;
+  border-radius:14px;
+}
+
+.control-pill{
+  display:flex;
+  gap:.55rem;
+  align-items:center;
+}
+
+.control-pill input[type="range"]{width:120px}
+
+.bpm-control input{
+  width:80px;
+  background:#05010a;
+  color:#f3d7ff;
+  border:1px solid rgba(255,45,149,.3);
+  border-radius:8px;
+  padding:.35rem;
+}
+
+.beat-display{
+  min-width:130px;
+  text-align:center;
+  color:#ff7db7;
+  font-weight:bold;
+}
+
+.section-title{
+  color:#ff7db7;
+  letter-spacing:.12em;
+  margin:0 0 1rem;
+}
+
+.sequencer-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  margin-bottom:1rem;
+  align-items:center;
+}
+
+.seq-row{
+  display:grid;
+  grid-template-columns:90px repeat(16,1fr);
+  gap:.45rem;
+  align-items:center;
+  margin:.65rem 0;
+}
+
+.seq-label{
+  font-weight:bold;
+  color:#f8b3d4;
+}
+
+.step{
+  height:38px;
+  border-radius:10px;
+  background:#16071f;
+  border:1px solid rgba(255,45,149,.25);
+  cursor:pointer;
+  padding:0;
+}
+
+.step.active{
+  background:var(--neon);
+  box-shadow:0 0 16px rgba(255,45,149,.55);
+}
+
+.step.playing{
+  outline:2px solid var(--gold);
+  transform:scale(1.08);
+}
+
+.synth-step{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:.25rem;
+}
+
+.synth-step select{
+  width:100%;
+  font-size:.75rem;
+  padding:.35rem;
+}
+
+.track-top{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:1rem;
+}
+
+.track-name{
+  font-size:1.2rem;
+  font-weight:bold;
+  color:#ff7db7;
+  letter-spacing:.08em;
+}
+
+.track-meta{
+  margin-top:.25rem;
+  color:var(--muted);
+  font-size:.85rem;
+}
+
+.track-controls{
+  display:flex;
+  gap:.5rem;
+}
+
+.track-bottom{
+  display:grid;
+  grid-template-columns:1fr 200px 160px;
+  gap:1rem;
+  margin-top:1rem;
+  align-items:center;
+}
+
 input[type=file]{color:#d8c0f0}
 input[type=range]{width:100%}
-select{background:#12061a;color:#f3d7ff;border:1px solid rgba(255,45,149,.25);padding:.7rem;border-radius:12px}
+
+select{
+  background:var(--panel-2);
+  color:#f3d7ff;
+  border:1px solid rgba(255,45,149,.25);
+  padding:.7rem;
+  border-radius:12px;
+}
+
 label{color:#e8c6ff}
-.status{text-align:center;margin-top:1rem;color:#bba2cf;opacity:.8}
-@media(max-width:850px){.track-bottom{grid-template-columns:1fr}.seq-row{grid-template-columns:70px repeat(8,1fr)}}
+
+.status{
+  text-align:center;
+  margin-top:1rem;
+  color:var(--muted);
+  opacity:.88;
+}
+
+@media(max-width:850px){
+  .track-bottom{grid-template-columns:1fr}
+  .seq-row{grid-template-columns:70px repeat(8,1fr)}
+  .control-pill input[type="range"]{width:90px}
+}
 </style>
 </head>
 
@@ -60,27 +297,32 @@ label{color:#e8c6ff}
     <button class="small-btn" id="recordBtn">RECORD</button>
     <button class="small-btn" id="stopRecordBtn">STOP REC</button>
 
-    <label><input type="checkbox" id="loopToggle" checked /> LOOP CLIPS</label>
-    <label><input type="checkbox" id="metronomeToggle" checked /> METRONOME</label>
-    <label>
-  MASTER
-  <input id="masterVolume" type="range" min="0" max="1.5" step="0.01" value="0.9" />
-</label>
+    <button class="small-btn" id="exportProject">EXPORT PROJECT</button>
+    <button class="small-btn" id="importProjectBtn">IMPORT PROJECT</button>
+    <input type="file" id="importProjectInput" accept="application/json,.json" hidden />
 
-<label>
-  DISTORTION
-  <input id="distortionAmount" type="range" min="0" max="800" step="1" value="0" />
-</label>
+    <label class="control-pill"><input type="checkbox" id="loopToggle" checked /> LOOP CLIPS</label>
+    <label class="control-pill"><input type="checkbox" id="metronomeToggle" checked /> METRONOME</label>
 
-<label>
-  FILTER
-  <input id="filterCutoff" type="range" min="200" max="12000" step="10" value="12000" />
-</label>
+    <label class="control-pill">
+      MASTER
+      <input id="masterVolume" type="range" min="0" max="1.5" step="0.01" value="0.9" />
+    </label>
 
-<label>
-  <input type="checkbox" id="effectsBypass" />
-  BYPASS FX
-</label>
+    <label class="control-pill">
+      DISTORTION
+      <input id="distortionAmount" type="range" min="0" max="800" step="1" value="0" />
+    </label>
+
+    <label class="control-pill">
+      FILTER
+      <input id="filterCutoff" type="range" min="200" max="12000" step="10" value="12000" />
+    </label>
+
+    <label class="control-pill">
+      <input type="checkbox" id="effectsBypass" />
+      BYPASS FX
+    </label>
 
     <div class="bpm-control">
       BPM <input id="bpmInput" type="number" value="120" min="40" max="240" />
@@ -98,8 +340,8 @@ label{color:#e8c6ff}
       <button class="small-btn" id="presetRitual">RITUAL</button>
       <button class="small-btn" id="randomizePattern">RANDOMIZE</button>
       <button class="small-btn" id="clearPattern">CLEAR</button>
-      <button class="small-btn" id="savePattern">SAVE</button>
-      <button class="small-btn" id="loadPattern">LOAD</button>
+      <button class="small-btn" id="savePattern">SAVE LOCAL</button>
+      <button class="small-btn" id="loadPattern">LOAD LOCAL</button>
     </div>
 
     <div id="sequencerGrid"></div>
@@ -137,7 +379,8 @@ label{color:#e8c6ff}
 </div>
 
 <script>
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+const audioContext = new AudioContextClass();
 
 const masterGain = audioContext.createGain();
 const distortionNode = audioContext.createWaveShaper();
@@ -150,41 +393,8 @@ masterFilter.type = "lowpass";
 masterFilter.frequency.value = 12000;
 masterFilter.Q.value = 0.8;
 
-function makeDistortionCurve(amount) {
-  const samples = 44100;
-  const curve = new Float32Array(samples);
-  const deg = Math.PI / 180;
-
-  for (let i = 0; i < samples; i++) {
-    const x = (i * 2) / samples - 1;
-    curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
-  }
-
-  return curve;
-}
-
 distortionNode.curve = makeDistortionCurve(0);
 distortionNode.oversample = "4x";
-
-function connectMasterChain() {
-  masterGain.disconnect();
-  distortionNode.disconnect();
-  masterFilter.disconnect();
-
-  const bypass = document.getElementById("effectsBypass")?.checked;
-
-  if (bypass) {
-    masterGain.connect(audioContext.destination);
-    masterGain.connect(mediaStreamDestination);
-  } else {
-    masterGain.connect(distortionNode);
-    distortionNode.connect(masterFilter);
-    masterFilter.connect(audioContext.destination);
-    masterFilter.connect(mediaStreamDestination);
-  }
-}
-
-connectMasterChain();
 
 let mediaRecorder = null;
 let recordedChunks = [];
@@ -198,16 +408,16 @@ const metronomeToggle = document.getElementById("metronomeToggle");
 const sequencerGrid = document.getElementById("sequencerGrid");
 const synthGrid = document.getElementById("synthGrid");
 
+const lookahead = 25;
+const scheduleAheadTime = 0.1;
+const stepsPerBar = 16;
+
 const tracks = [];
 let activeSources = [];
 let schedulerTimer = null;
 let currentBeat = 0;
 let currentStep = 0;
 let nextBeatTime = 0;
-
-const lookahead = 25;
-const scheduleAheadTime = 0.1;
-const stepsPerBar = 16;
 
 const drumRows = [
   { name: "KICK", sound: createKickBuffer(), pattern: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0] },
@@ -252,7 +462,41 @@ let synthPattern = [
   "Ab2", "", "G2", ""
 ];
 
+function makeDistortionCurve(amount) {
+  const samples = 44100;
+  const curve = new Float32Array(samples);
+  const deg = Math.PI / 180;
+  const safeAmount = Number(amount) || 0;
+
+  for (let i = 0; i < samples; i++) {
+    const x = (i * 2) / samples - 1;
+    curve[i] = ((3 + safeAmount) * x * 20 * deg) / (Math.PI + safeAmount * Math.abs(x));
+  }
+
+  return curve;
+}
+
+function connectMasterChain() {
+  try { masterGain.disconnect(); } catch {}
+  try { distortionNode.disconnect(); } catch {}
+  try { masterFilter.disconnect(); } catch {}
+
+  const bypass = document.getElementById("effectsBypass")?.checked;
+
+  if (bypass) {
+    masterGain.connect(audioContext.destination);
+    masterGain.connect(mediaStreamDestination);
+  } else {
+    masterGain.connect(distortionNode);
+    distortionNode.connect(masterFilter);
+    masterFilter.connect(audioContext.destination);
+    masterFilter.connect(mediaStreamDestination);
+  }
+}
+
 function buildSequencer() {
+  sequencerGrid.innerHTML = "";
+
   drumRows.forEach((row) => {
     const rowEl = document.createElement("div");
     rowEl.className = "seq-row";
@@ -260,6 +504,7 @@ function buildSequencer() {
 
     row.pattern.forEach((active, stepIndex) => {
       const step = document.createElement("button");
+      step.type = "button";
       step.className = "step";
       if (active) step.classList.add("active");
 
@@ -276,6 +521,8 @@ function buildSequencer() {
 }
 
 function buildSynthSequencer() {
+  synthGrid.innerHTML = "";
+
   const rowEl = document.createElement("div");
   rowEl.className = "seq-row";
   rowEl.innerHTML = `<div class="seq-label">BASS</div>`;
@@ -307,17 +554,31 @@ function buildSynthSequencer() {
 }
 
 function createTrack(index) {
-  const track = { buffer:null, volume:.8, muted:false, solo:false, gainNode:null };
+  const track = {
+    buffer:null,
+    volume:.8,
+    muted:false,
+    solo:false,
+    gainNode:null,
+    sourceType:null,
+    sourceName:null,
+    fileName:null
+  };
+
   tracks.push(track);
 
   const el = document.createElement("div");
   el.className = "track";
   el.innerHTML = `
     <div class="track-top">
-      <div class="track-name">TRACK ${index + 1}</div>
+      <div>
+        <div class="track-name">TRACK ${index + 1}</div>
+        <div class="track-meta" data-track-meta="${index}">No clip loaded</div>
+      </div>
+
       <div class="track-controls">
-        <button class="small-btn mute-btn">MUTE</button>
-        <button class="small-btn solo-btn">SOLO</button>
+        <button class="small-btn mute-btn" type="button">MUTE</button>
+        <button class="small-btn solo-btn" type="button">SOLO</button>
       </div>
     </div>
 
@@ -346,6 +607,7 @@ function createTrack(index) {
   const fileInput = el.querySelector(".file-input");
   const sampleSelect = el.querySelector(".sample-select");
   const volumeSlider = el.querySelector(".volume-slider");
+  const meta = el.querySelector(`[data-track-meta="${index}"]`);
 
   muteBtn.addEventListener("click", () => {
     track.muted = !track.muted;
@@ -364,8 +626,13 @@ function createTrack(index) {
 
   sampleSelect.addEventListener("change", () => {
     const sampleName = sampleSelect.value;
+
     if (sampleLibrary[sampleName]) {
       track.buffer = sampleLibrary[sampleName];
+      track.sourceType = "builtin";
+      track.sourceName = sampleName;
+      track.fileName = null;
+      meta.textContent = `Loaded: ${sampleName}`;
       statusEl.textContent = `${sampleName} loaded into TRACK ${index + 1}`;
     }
   });
@@ -374,34 +641,36 @@ function createTrack(index) {
     const file = e.target.files[0];
     if (!file) return;
 
-    await audioContext.resume();
+    try {
+      await audioContext.resume();
 
-    const arrayBuffer = await file.arrayBuffer();
-    const decoded = await audioContext.decodeAudioData(arrayBuffer);
+      const arrayBuffer = await file.arrayBuffer();
+      const decoded = await audioContext.decodeAudioData(arrayBuffer);
 
-    track.buffer = decoded;
-    statusEl.textContent = `${file.name} loaded into TRACK ${index + 1}`;
+      track.buffer = decoded;
+      track.sourceType = "file";
+      track.sourceName = null;
+      track.fileName = file.name;
+      sampleSelect.value = "";
+      meta.textContent = `Loaded file: ${file.name}`;
+      statusEl.textContent = `${file.name} loaded into TRACK ${index + 1}`;
+    } catch (error) {
+      console.error(error);
+      statusEl.textContent = "Could not load that audio file.";
+    }
   });
+
+  track.ui = { muteBtn, soloBtn, volumeSlider, sampleSelect, meta };
 }
-  document.getElementById("masterVolume").addEventListener("input", e => {
-  masterGain.gain.value = Number(e.target.value);
-});
-
-document.getElementById("distortionAmount").addEventListener("input", e => {
-  distortionNode.curve = makeDistortionCurve(Number(e.target.value));
-});
-
-document.getElementById("filterCutoff").addEventListener("input", e => {
-  masterFilter.frequency.value = Number(e.target.value);
-});
-
-document.getElementById("effectsBypass").addEventListener("change", connectMasterChain);
 
 function secondsPerStep() {
-  return (60 / Number(bpmInput.value || 120)) / 4;
+  const bpm = Number(bpmInput.value || 120);
+  return (60 / bpm) / 4;
 }
 
 function startTransport() {
+  stopTransport(false);
+
   currentBeat = 0;
   currentStep = 0;
   nextBeatTime = audioContext.currentTime + 0.05;
@@ -410,15 +679,17 @@ function startTransport() {
   statusEl.textContent = "Sequencer active...";
 }
 
-function stopTransport() {
-  clearInterval(schedulerTimer);
+function stopTransport(updateStatus = true) {
+  if (schedulerTimer) clearInterval(schedulerTimer);
+
   schedulerTimer = null;
   stopAll();
   clearStepHighlights();
   currentBeat = 0;
   currentStep = 0;
   beatDisplay.textContent = "BAR 1 : BEAT 1";
-  statusEl.textContent = "Signal terminated.";
+
+  if (updateStatus) statusEl.textContent = "Signal terminated.";
 }
 
 function scheduler() {
@@ -514,7 +785,7 @@ function noteToFrequency(note) {
     B: 11
   };
 
-  const match = note.match(/^([A-G][b#]?)(\d)$/);
+  const match = note?.match(/^([A-G][b#]?)(\d)$/);
   if (!match) return null;
 
   const pitch = match[1];
@@ -543,7 +814,7 @@ function playSynthNote(note, time) {
   filter.Q.setValueAtTime(8, time);
 
   gain.gain.setValueAtTime(0.001, time);
-  gain.gain.exponentialRampToValueAtTime(volume, time + 0.02);
+  gain.gain.exponentialRampToValueAtTime(Math.max(volume, 0.001), time + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.001, time + secondsPerStep() * 0.9);
 
   osc.connect(filter);
@@ -556,9 +827,8 @@ function playSynthNote(note, time) {
 
 function highlightStep(stepNumber) {
   clearStepHighlights();
-  const rows = document.querySelectorAll(".seq-row");
 
-  rows.forEach(row => {
+  document.querySelectorAll(".seq-row").forEach(row => {
     const steps = row.querySelectorAll(".step");
     if (steps[stepNumber]) steps[stepNumber].classList.add("playing");
   });
@@ -574,13 +844,16 @@ function stopAll() {
   activeSources.forEach(source => {
     try { source.stop(); } catch {}
   });
+
   activeSources = [];
+  tracks.forEach(track => track.gainNode = null);
 }
 
 function applyPattern(patternSet) {
   drumRows.forEach((row, rowIndex) => {
-    row.pattern = [...patternSet[rowIndex]];
+    if (patternSet[rowIndex]) row.pattern = [...patternSet[rowIndex]];
   });
+
   refreshSequencerButtons();
 }
 
@@ -600,15 +873,27 @@ function refreshSynthButtons() {
   const selects = synthGrid.querySelectorAll("select");
 
   selects.forEach((select, index) => {
-    select.value = synthPattern[index];
+    select.value = synthPattern[index] || "";
   });
 }
 
 function startRecording() {
   if (isRecording) return;
 
+  if (!window.MediaRecorder) {
+    statusEl.textContent = "MediaRecorder is not supported in this browser.";
+    return;
+  }
+
   recordedChunks = [];
-  mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
+
+  try {
+    mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
+  } catch (error) {
+    console.error(error);
+    statusEl.textContent = "Could not start recorder.";
+    return;
+  }
 
   mediaRecorder.ondataavailable = event => {
     if (event.data.size > 0) recordedChunks.push(event.data);
@@ -629,13 +914,175 @@ function startRecording() {
 
   mediaRecorder.start();
   isRecording = true;
+  document.getElementById("recordBtn").classList.add("active");
   statusEl.textContent = "Recording...";
 }
 
 function stopRecording() {
   if (!isRecording || !mediaRecorder) return;
+
   mediaRecorder.stop();
   isRecording = false;
+  document.getElementById("recordBtn").classList.remove("active");
+}
+
+function getProjectData() {
+  return {
+    app: "Signal Studio",
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    bpm: Number(bpmInput.value),
+    loopClips: document.getElementById("loopToggle").checked,
+    metronome: document.getElementById("metronomeToggle").checked,
+    drums: drumRows.map(row => ({
+      name: row.name,
+      pattern: row.pattern
+    })),
+    synth: {
+      pattern: synthPattern,
+      wave: document.getElementById("synthWave").value,
+      volume: Number(document.getElementById("synthVolume").value)
+    },
+    effects: {
+      masterVolume: Number(document.getElementById("masterVolume").value),
+      distortionAmount: Number(document.getElementById("distortionAmount").value),
+      filterCutoff: Number(document.getElementById("filterCutoff").value),
+      bypass: document.getElementById("effectsBypass").checked
+    },
+    tracks: tracks.map(track => ({
+      volume: track.volume,
+      muted: track.muted,
+      solo: track.solo,
+      sourceType: track.sourceType,
+      sourceName: track.sourceName,
+      fileName: track.fileName
+    }))
+  };
+}
+
+function exportProjectFile() {
+  const project = getProjectData();
+
+  const blob = new Blob([JSON.stringify(project, null, 2)], {
+    type: "application/json"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `signal-studio-project-${Date.now()}.json`;
+  link.click();
+
+  URL.revokeObjectURL(url);
+  statusEl.textContent = "Project exported as JSON.";
+}
+
+function loadProjectData(project) {
+  if (!project || project.app !== "Signal Studio") {
+    statusEl.textContent = "Invalid Signal Studio project file.";
+    return;
+  }
+
+  stopTransport(false);
+
+  bpmInput.value = project.bpm || 120;
+  document.getElementById("loopToggle").checked = project.loopClips ?? true;
+  document.getElementById("metronomeToggle").checked = project.metronome ?? true;
+
+  if (Array.isArray(project.drums)) {
+    project.drums.forEach((savedRow, index) => {
+      if (drumRows[index] && Array.isArray(savedRow.pattern)) {
+        drumRows[index].pattern = savedRow.pattern.slice(0, stepsPerBar);
+      }
+    });
+
+    refreshSequencerButtons();
+  }
+
+  if (project.synth) {
+    if (Array.isArray(project.synth.pattern)) {
+      synthPattern = project.synth.pattern.slice(0, stepsPerBar);
+      while (synthPattern.length < stepsPerBar) synthPattern.push("");
+    }
+
+    document.getElementById("synthWave").value = project.synth.wave || "sawtooth";
+    document.getElementById("synthVolume").value = project.synth.volume ?? 0.35;
+    refreshSynthButtons();
+  }
+
+  if (project.effects) {
+    document.getElementById("masterVolume").value = project.effects.masterVolume ?? 0.9;
+    document.getElementById("distortionAmount").value = project.effects.distortionAmount ?? 0;
+    document.getElementById("filterCutoff").value = project.effects.filterCutoff ?? 12000;
+    document.getElementById("effectsBypass").checked = project.effects.bypass ?? false;
+
+    masterGain.gain.value = Number(document.getElementById("masterVolume").value);
+    distortionNode.curve = makeDistortionCurve(Number(document.getElementById("distortionAmount").value));
+    masterFilter.frequency.value = Number(document.getElementById("filterCutoff").value);
+    connectMasterChain();
+  }
+
+  if (Array.isArray(project.tracks)) {
+    project.tracks.forEach((savedTrack, index) => {
+      const track = tracks[index];
+      if (!track) return;
+
+      track.volume = savedTrack.volume ?? 0.8;
+      track.muted = !!savedTrack.muted;
+      track.solo = !!savedTrack.solo;
+
+      track.ui.volumeSlider.value = track.volume;
+      track.ui.muteBtn.classList.toggle("active", track.muted);
+      track.ui.soloBtn.classList.toggle("active", track.solo);
+
+      if (savedTrack.sourceType === "builtin" && sampleLibrary[savedTrack.sourceName]) {
+        track.buffer = sampleLibrary[savedTrack.sourceName];
+        track.sourceType = "builtin";
+        track.sourceName = savedTrack.sourceName;
+        track.fileName = null;
+        track.ui.sampleSelect.value = savedTrack.sourceName;
+        track.ui.meta.textContent = `Loaded: ${savedTrack.sourceName}`;
+      } else if (savedTrack.sourceType === "file") {
+        track.buffer = null;
+        track.sourceType = "file";
+        track.sourceName = null;
+        track.fileName = savedTrack.fileName || "External file";
+        track.ui.sampleSelect.value = "";
+        track.ui.meta.textContent = `File not embedded: ${track.fileName}`;
+      } else {
+        track.buffer = null;
+        track.sourceType = null;
+        track.sourceName = null;
+        track.fileName = null;
+        track.ui.sampleSelect.value = "";
+        track.ui.meta.textContent = "No clip loaded";
+      }
+    });
+  }
+
+  statusEl.textContent = "Project imported. External uploaded audio files must be reloaded manually.";
+}
+
+function saveLocalProject() {
+  localStorage.setItem("signalStudioProject", JSON.stringify(getProjectData()));
+  statusEl.textContent = "Project saved to this browser.";
+}
+
+function loadLocalProject() {
+  const saved = localStorage.getItem("signalStudioProject");
+
+  if (!saved) {
+    statusEl.textContent = "No local project found.";
+    return;
+  }
+
+  try {
+    loadProjectData(JSON.parse(saved));
+  } catch (error) {
+    console.error(error);
+    statusEl.textContent = "Local project could not be loaded.";
+  }
 }
 
 function createToneBuffer(freq, duration) {
@@ -721,101 +1168,124 @@ function createHatBuffer() {
   return buffer;
 }
 
-document.getElementById("playBtn").addEventListener("click", async () => {
-  await audioContext.resume();
-  stopTransport();
-  startTransport();
-});
-
-document.getElementById("stopBtn").addEventListener("click", stopTransport);
-
-document.getElementById("recordBtn").addEventListener("click", async () => {
-  await audioContext.resume();
-  startRecording();
-});
-
-document.getElementById("stopRecordBtn").addEventListener("click", stopRecording);
-
-document.getElementById("presetBasic").addEventListener("click", () => {
-  applyPattern(presets.basic);
-  statusEl.textContent = "Basic pattern loaded.";
-});
-
-document.getElementById("presetIndustrial").addEventListener("click", () => {
-  applyPattern(presets.industrial);
-  statusEl.textContent = "Industrial pattern loaded.";
-});
-
-document.getElementById("presetRitual").addEventListener("click", () => {
-  applyPattern(presets.ritual);
-  statusEl.textContent = "Ritual pattern loaded.";
-});
-
-document.getElementById("randomizePattern").addEventListener("click", () => {
-  drumRows.forEach(row => {
-    row.pattern = row.pattern.map(() => Math.random() > 0.65 ? 1 : 0);
+function wireEvents() {
+  document.getElementById("playBtn").addEventListener("click", async () => {
+    await audioContext.resume();
+    startTransport();
   });
-  refreshSequencerButtons();
-  statusEl.textContent = "Pattern randomized.";
-});
 
-document.getElementById("clearPattern").addEventListener("click", () => {
-  drumRows.forEach(row => {
-    row.pattern = row.pattern.map(() => 0);
+  document.getElementById("stopBtn").addEventListener("click", () => stopTransport(true));
+
+  document.getElementById("recordBtn").addEventListener("click", async () => {
+    await audioContext.resume();
+    startRecording();
   });
-  refreshSequencerButtons();
-  statusEl.textContent = "Pattern cleared.";
-});
 
-document.getElementById("savePattern").addEventListener("click", () => {
-  const savedPattern = drumRows.map(row => row.pattern);
-  localStorage.setItem("signalStudioPattern", JSON.stringify(savedPattern));
-  localStorage.setItem("signalStudioSynthPattern", JSON.stringify(synthPattern));
-  statusEl.textContent = "Pattern saved to browser.";
-});
+  document.getElementById("stopRecordBtn").addEventListener("click", stopRecording);
 
-document.getElementById("loadPattern").addEventListener("click", () => {
-  const savedDrums = localStorage.getItem("signalStudioPattern");
-  const savedSynth = localStorage.getItem("signalStudioSynthPattern");
+  document.getElementById("masterVolume").addEventListener("input", e => {
+    masterGain.gain.value = Number(e.target.value);
+  });
 
-  if (!savedDrums) {
-    statusEl.textContent = "No saved pattern found.";
-    return;
-  }
+  document.getElementById("distortionAmount").addEventListener("input", e => {
+    distortionNode.curve = makeDistortionCurve(Number(e.target.value));
+  });
 
-  applyPattern(JSON.parse(savedDrums));
+  document.getElementById("filterCutoff").addEventListener("input", e => {
+    masterFilter.frequency.value = Number(e.target.value);
+  });
 
-  if (savedSynth) {
-    synthPattern = JSON.parse(savedSynth);
+  document.getElementById("effectsBypass").addEventListener("change", connectMasterChain);
+
+  document.getElementById("presetBasic").addEventListener("click", () => {
+    applyPattern(presets.basic);
+    statusEl.textContent = "Basic pattern loaded.";
+  });
+
+  document.getElementById("presetIndustrial").addEventListener("click", () => {
+    applyPattern(presets.industrial);
+    statusEl.textContent = "Industrial pattern loaded.";
+  });
+
+  document.getElementById("presetRitual").addEventListener("click", () => {
+    applyPattern(presets.ritual);
+    statusEl.textContent = "Ritual pattern loaded.";
+  });
+
+  document.getElementById("randomizePattern").addEventListener("click", () => {
+    drumRows.forEach(row => {
+      row.pattern = row.pattern.map(() => Math.random() > 0.65 ? 1 : 0);
+    });
+
+    refreshSequencerButtons();
+    statusEl.textContent = "Pattern randomized.";
+  });
+
+  document.getElementById("clearPattern").addEventListener("click", () => {
+    drumRows.forEach(row => {
+      row.pattern = row.pattern.map(() => 0);
+    });
+
+    refreshSequencerButtons();
+    statusEl.textContent = "Pattern cleared.";
+  });
+
+  document.getElementById("savePattern").addEventListener("click", saveLocalProject);
+  document.getElementById("loadPattern").addEventListener("click", loadLocalProject);
+
+  document.getElementById("randomizeSynth").addEventListener("click", () => {
+    synthPattern = synthPattern.map(() => {
+      return Math.random() > 0.45
+        ? synthNotes[Math.floor(Math.random() * (synthNotes.length - 1)) + 1]
+        : "";
+    });
+
     refreshSynthButtons();
-  }
-
-  statusEl.textContent = "Saved pattern loaded.";
-});
-
-document.getElementById("randomizeSynth").addEventListener("click", () => {
-  synthPattern = synthPattern.map(() => {
-    return Math.random() > 0.45
-      ? synthNotes[Math.floor(Math.random() * (synthNotes.length - 1)) + 1]
-      : "";
+    statusEl.textContent = "Synth pattern randomized.";
   });
 
-  refreshSynthButtons();
-  statusEl.textContent = "Synth pattern randomized.";
-});
+  document.getElementById("clearSynth").addEventListener("click", () => {
+    synthPattern = synthPattern.map(() => "");
+    refreshSynthButtons();
+    statusEl.textContent = "Synth pattern cleared.";
+  });
 
-document.getElementById("clearSynth").addEventListener("click", () => {
-  synthPattern = synthPattern.map(() => "");
-  refreshSynthButtons();
-  statusEl.textContent = "Synth pattern cleared.";
-});
+  document.getElementById("exportProject").addEventListener("click", exportProjectFile);
 
-buildSequencer();
-buildSynthSequencer();
+  document.getElementById("importProjectBtn").addEventListener("click", () => {
+    document.getElementById("importProjectInput").click();
+  });
 
-for (let i = 0; i < 4; i++) {
-  createTrack(i);
+  document.getElementById("importProjectInput").addEventListener("change", async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const project = JSON.parse(text);
+      loadProjectData(project);
+    } catch (error) {
+      console.error(error);
+      statusEl.textContent = "Could not import that project file.";
+    } finally {
+      e.target.value = "";
+    }
+  });
 }
+
+function init() {
+  connectMasterChain();
+  buildSequencer();
+  buildSynthSequencer();
+
+  for (let i = 0; i < 4; i++) {
+    createTrack(i);
+  }
+
+  wireEvents();
+}
+
+init();
 </script>
 </body>
 </html>
