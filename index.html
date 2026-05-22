@@ -4,253 +4,73 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Signal Studio // Infernal Build</title>
-
 <style>
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  background:
-    radial-gradient(circle at top, rgba(255,0,90,0.08), transparent 40%),
-    linear-gradient(180deg, #05010a, #0d0216 50%, #030104);
-  color: #f4d8ff;
-  font-family: "Segoe UI", sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
-  background-size: 100% 4px;
-  opacity: 0.15;
-  animation: scan 10s linear infinite;
-}
-
-@keyframes scan {
-  from { transform: translateY(0); }
-  to { transform: translateY(4px); }
-}
-
-header {
-  text-align: center;
-  padding: 2rem 1rem;
-}
-
-h1 {
-  margin: 0;
-  font-size: clamp(2rem, 5vw, 4rem);
-  letter-spacing: 0.2em;
-  color: #ff2d95;
-  text-shadow:
-    0 0 10px #ff2d95,
-    0 0 20px #ff2d95,
-    0 0 40px rgba(255,45,149,0.5);
-}
-
-.subtitle {
-  margin-top: 1rem;
-  color: #9f8bb7;
-  letter-spacing: 0.08em;
-}
-
-.container {
-  width: min(1200px, 95%);
-  margin: auto;
-  padding-bottom: 4rem;
-}
-
-.transport {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  border-radius: 20px;
-  background: rgba(18, 6, 26, 0.85);
-  border: 1px solid rgba(255,45,149,0.25);
-  backdrop-filter: blur(10px);
-  box-shadow:
-    0 0 30px rgba(255,45,149,0.08),
-    inset 0 0 20px rgba(255,255,255,0.02);
-}
-
-button {
-  border: none;
-  cursor: pointer;
-  padding: 0.8rem 1.3rem;
-  border-radius: 999px;
-  font-weight: bold;
-  letter-spacing: 0.08em;
-  transition: 0.2s;
-}
-
-button:hover { transform: translateY(-2px); }
-
-.play-btn {
-  background: linear-gradient(135deg, #ff2d95, #ff6b3d);
-  color: white;
-  box-shadow: 0 0 20px rgba(255,45,149,0.35);
-}
-
-.stop-btn {
-  background: #2b0d1d;
-  color: #ff8dc0;
-  border: 1px solid rgba(255,45,149,0.4);
-}
-
-.small-btn {
-  background: #1d0b26;
-  color: #e8c6ff;
-  border: 1px solid rgba(255,45,149,0.2);
-  padding: 0.5rem 0.8rem;
-}
-
-.small-btn.active {
-  background: #ff2d95;
-  color: white;
-  box-shadow: 0 0 15px rgba(255,45,149,0.4);
-}
-
-.bpm-control,
-.beat-display {
-  background: #12061a;
-  color: #f3d7ff;
-  border: 1px solid rgba(255,45,149,0.25);
-  padding: 0.75rem 1rem;
-  border-radius: 14px;
-}
-
-.bpm-control input {
-  width: 80px;
-  background: #05010a;
-  color: #f3d7ff;
-  border: 1px solid rgba(255,45,149,0.3);
-  border-radius: 8px;
-  padding: 0.35rem;
-}
-
-.beat-display {
-  min-width: 120px;
-  text-align: center;
-  color: #ff7db7;
-  font-weight: bold;
-  box-shadow: inset 0 0 15px rgba(255,45,149,0.08);
-}
-
-.track {
-  background: rgba(14, 5, 20, 0.9);
-  border: 1px solid rgba(255,45,149,0.18);
-  border-radius: 24px;
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-  box-shadow:
-    0 0 20px rgba(255,45,149,0.06),
-    inset 0 0 20px rgba(255,255,255,0.015);
-}
-
-.track-top {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.track-name {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #ff7db7;
-  letter-spacing: 0.08em;
-}
-
-.track-controls {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.track-bottom {
-  display: grid;
-  grid-template-columns: 1fr 200px 160px;
-  gap: 1rem;
-  margin-top: 1rem;
-  align-items: center;
-}
-
-input[type="file"] { color: #d8c0f0; }
-input[type="range"] { width: 100%; }
-
-select {
-  background: #12061a;
-  color: #f3d7ff;
-  border: 1px solid rgba(255,45,149,0.25);
-  padding: 0.7rem;
-  border-radius: 12px;
-}
-
-.status {
-  text-align: center;
-  margin-top: 1rem;
-  color: #bba2cf;
-  opacity: 0.8;
-}
-
-.glow { animation: pulse 2.5s infinite; }
-
-@keyframes pulse {
-  0%,100% { box-shadow: 0 0 12px rgba(255,45,149,0.3); }
-  50% { box-shadow: 0 0 25px rgba(255,45,149,0.7); }
-}
-
-@media (max-width: 850px) {
-  .track-bottom { grid-template-columns: 1fr; }
-}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top,rgba(255,0,90,.08),transparent 40%),linear-gradient(180deg,#05010a,#0d0216 50%,#030104);color:#f4d8ff;font-family:"Segoe UI",sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px);background-size:100% 4px;opacity:.15;animation:scan 10s linear infinite}
+@keyframes scan{from{transform:translateY(0)}to{transform:translateY(4px)}}
+header{text-align:center;padding:2rem 1rem}
+h1{margin:0;font-size:clamp(2rem,5vw,4rem);letter-spacing:.2em;color:#ff2d95;text-shadow:0 0 10px #ff2d95,0 0 20px #ff2d95,0 0 40px rgba(255,45,149,.5)}
+.subtitle{margin-top:1rem;color:#9f8bb7;letter-spacing:.08em}
+.container{width:min(1200px,95%);margin:auto;padding-bottom:4rem}
+.transport,.sequencer,.track{background:rgba(14,5,20,.9);border:1px solid rgba(255,45,149,.2);border-radius:24px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 0 25px rgba(255,45,149,.08),inset 0 0 20px rgba(255,255,255,.015)}
+.transport{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:center}
+button{border:none;cursor:pointer;padding:.8rem 1.3rem;border-radius:999px;font-weight:bold;letter-spacing:.08em;transition:.2s}
+button:hover{transform:translateY(-2px)}
+.play-btn{background:linear-gradient(135deg,#ff2d95,#ff6b3d);color:white;box-shadow:0 0 20px rgba(255,45,149,.35)}
+.stop-btn{background:#2b0d1d;color:#ff8dc0;border:1px solid rgba(255,45,149,.4)}
+.small-btn{background:#1d0b26;color:#e8c6ff;border:1px solid rgba(255,45,149,.2);padding:.5rem .8rem}
+.small-btn.active{background:#ff2d95;color:white;box-shadow:0 0 15px rgba(255,45,149,.4)}
+.bpm-control,.beat-display{background:#12061a;color:#f3d7ff;border:1px solid rgba(255,45,149,.25);padding:.75rem 1rem;border-radius:14px}
+.bpm-control input{width:80px;background:#05010a;color:#f3d7ff;border:1px solid rgba(255,45,149,.3);border-radius:8px;padding:.35rem}
+.beat-display{min-width:130px;text-align:center;color:#ff7db7;font-weight:bold}
+.section-title{color:#ff7db7;letter-spacing:.12em;margin:0 0 1rem}
+.seq-row{display:grid;grid-template-columns:90px repeat(16,1fr);gap:.45rem;align-items:center;margin:.65rem 0}
+.seq-label{font-weight:bold;color:#f8b3d4}
+.step{height:38px;border-radius:10px;background:#16071f;border:1px solid rgba(255,45,149,.25);cursor:pointer}
+.step.active{background:#ff2d95;box-shadow:0 0 16px rgba(255,45,149,.55)}
+.step.playing{outline:2px solid #ffef8a;transform:scale(1.08)}
+.track-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem}
+.track-name{font-size:1.2rem;font-weight:bold;color:#ff7db7;letter-spacing:.08em}
+.track-controls{display:flex;gap:.5rem}
+.track-bottom{display:grid;grid-template-columns:1fr 200px 160px;gap:1rem;margin-top:1rem;align-items:center}
+input[type=file]{color:#d8c0f0}
+input[type=range]{width:100%}
+select{background:#12061a;color:#f3d7ff;border:1px solid rgba(255,45,149,.25);padding:.7rem;border-radius:12px}
+.status{text-align:center;margin-top:1rem;color:#bba2cf;opacity:.8}
+@media(max-width:850px){.track-bottom{grid-template-columns:1fr}.seq-row{grid-template-columns:70px repeat(8,1fr)}.seq-row .step:nth-child(n+10){margin-top:.3rem}}
 </style>
 </head>
 
 <body>
-
 <header>
   <h1>SIGNAL STUDIO</h1>
   <div class="subtitle">Infernal Cyber Audio Engine</div>
 </header>
 
 <div class="container">
-
-  <div class="transport glow">
+  <div class="transport">
     <button class="play-btn" id="playBtn">PLAY</button>
     <button class="stop-btn" id="stopBtn">STOP</button>
 
-    <label>
-      <input type="checkbox" id="loopToggle" checked />
-      LOOP
-    </label>
-
-    <label>
-      <input type="checkbox" id="metronomeToggle" checked />
-      METRONOME
-    </label>
+    <label><input type="checkbox" id="loopToggle" checked /> LOOP CLIPS</label>
+    <label><input type="checkbox" id="metronomeToggle" checked /> METRONOME</label>
 
     <div class="bpm-control">
-      BPM
-      <input id="bpmInput" type="number" value="120" min="40" max="240" />
+      BPM <input id="bpmInput" type="number" value="120" min="40" max="240" />
     </div>
 
-    <div class="beat-display" id="beatDisplay">
-      BAR 1 : BEAT 1
-    </div>
+    <div class="beat-display" id="beatDisplay">BAR 1 : BEAT 1</div>
   </div>
+
+  <section class="sequencer">
+    <h2 class="section-title">RITUAL DRUM SEQUENCER</h2>
+    <div id="sequencerGrid"></div>
+  </section>
 
   <div id="tracks"></div>
 
-  <div class="status" id="status">
-    Awaiting audio signal...
-  </div>
-
+  <div class="status" id="status">Awaiting audio signal...</div>
 </div>
 
 <script>
@@ -261,47 +81,66 @@ const statusEl = document.getElementById("status");
 const beatDisplay = document.getElementById("beatDisplay");
 const bpmInput = document.getElementById("bpmInput");
 const metronomeToggle = document.getElementById("metronomeToggle");
+const sequencerGrid = document.getElementById("sequencerGrid");
 
 const tracks = [];
 let activeSources = [];
-
 let isPlaying = false;
 let schedulerTimer = null;
 let currentBeat = 0;
+let currentStep = 0;
 let nextBeatTime = 0;
-let lookahead = 25;
-let scheduleAheadTime = 0.1;
 
+const lookahead = 25;
+const scheduleAheadTime = 0.1;
 const beatsPerBar = 4;
+const stepsPerBar = 16;
+
+const drumRows = [
+  { name: "KICK", sound: createKickBuffer(), pattern: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0] },
+  { name: "SNARE", sound: createSnareBuffer(), pattern: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0] },
+  { name: "HAT", sound: createHatBuffer(), pattern: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0] }
+];
 
 const sampleLibrary = {
   "Sine Drone": createToneBuffer(110, 2),
   "Dark Pulse": createPulseBuffer(70, 1.5),
   "Infernal Bass": createToneBuffer(55, 2),
-  "Noise Wash": createNoiseBuffer(2),
-  "Demon Kick": createKickBuffer(),
-  "Ash Snare": createSnareBuffer(),
-  "Iron Hat": createHatBuffer()
+  "Noise Wash": createNoiseBuffer(2)
 };
 
-function createTrack(index) {
-  const track = {
-    buffer: null,
-    volume: 0.8,
-    muted: false,
-    solo: false,
-    gainNode: null
-  };
+function buildSequencer() {
+  drumRows.forEach((row, rowIndex) => {
+    const rowEl = document.createElement("div");
+    rowEl.className = "seq-row";
+    rowEl.innerHTML = `<div class="seq-label">${row.name}</div>`;
 
+    row.pattern.forEach((active, stepIndex) => {
+      const step = document.createElement("button");
+      step.className = "step";
+      if (active) step.classList.add("active");
+
+      step.addEventListener("click", () => {
+        row.pattern[stepIndex] = row.pattern[stepIndex] ? 0 : 1;
+        step.classList.toggle("active", !!row.pattern[stepIndex]);
+      });
+
+      rowEl.appendChild(step);
+    });
+
+    sequencerGrid.appendChild(rowEl);
+  });
+}
+
+function createTrack(index) {
+  const track = { buffer:null, volume:.8, muted:false, solo:false, gainNode:null };
   tracks.push(track);
 
   const el = document.createElement("div");
   el.className = "track";
-
   el.innerHTML = `
     <div class="track-top">
       <div class="track-name">TRACK ${index + 1}</div>
-
       <div class="track-controls">
         <button class="small-btn mute-btn">MUTE</button>
         <button class="small-btn solo-btn">SOLO</button>
@@ -317,9 +156,6 @@ function createTrack(index) {
         <option>Dark Pulse</option>
         <option>Infernal Bass</option>
         <option>Noise Wash</option>
-        <option>Demon Kick</option>
-        <option>Ash Snare</option>
-        <option>Iron Hat</option>
       </select>
 
       <div>
@@ -347,7 +183,7 @@ function createTrack(index) {
     soloBtn.classList.toggle("active", track.solo);
   });
 
-  volumeSlider.addEventListener("input", (e) => {
+  volumeSlider.addEventListener("input", e => {
     track.volume = Number(e.target.value);
     if (track.gainNode) track.gainNode.gain.value = track.volume;
   });
@@ -360,10 +196,9 @@ function createTrack(index) {
     }
   });
 
-  fileInput.addEventListener("change", async (e) => {
+  fileInput.addEventListener("change", async e => {
     const file = e.target.files[0];
     if (!file) return;
-
     await audioContext.resume();
 
     const arrayBuffer = await file.arrayBuffer();
@@ -374,16 +209,18 @@ function createTrack(index) {
   });
 }
 
-function secondsPerBeat() {
-  return 60 / Number(bpmInput.value || 120);
+function secondsPerStep() {
+  return (60 / Number(bpmInput.value || 120)) / 4;
 }
 
 function startTransport() {
   isPlaying = true;
   currentBeat = 0;
+  currentStep = 0;
   nextBeatTime = audioContext.currentTime + 0.05;
   schedulerTimer = setInterval(scheduler, lookahead);
-  statusEl.textContent = "Waiting for next beat...";
+  playAllClips(nextBeatTime);
+  statusEl.textContent = "Sequencer active...";
 }
 
 function stopTransport() {
@@ -391,49 +228,38 @@ function stopTransport() {
   clearInterval(schedulerTimer);
   schedulerTimer = null;
   stopAll();
+  clearStepHighlights();
   currentBeat = 0;
-  updateBeatDisplay();
+  currentStep = 0;
+  beatDisplay.textContent = "BAR 1 : BEAT 1";
   statusEl.textContent = "Signal terminated.";
 }
 
 function scheduler() {
   while (nextBeatTime < audioContext.currentTime + scheduleAheadTime) {
-    scheduleBeat(currentBeat, nextBeatTime);
-    nextBeatTime += secondsPerBeat();
+    scheduleStep(currentStep, nextBeatTime);
+    nextBeatTime += secondsPerStep();
+    currentStep = (currentStep + 1) % stepsPerBar;
     currentBeat++;
   }
 }
 
-function scheduleBeat(beatNumber, time) {
-  const beatInBar = beatNumber % beatsPerBar;
-  const barNumber = Math.floor(beatNumber / beatsPerBar) + 1;
+function scheduleStep(stepNumber, time) {
+  const beatInBar = Math.floor(stepNumber / 4);
+  const barNumber = Math.floor(currentBeat / stepsPerBar) + 1;
 
   setTimeout(() => {
     beatDisplay.textContent = `BAR ${barNumber} : BEAT ${beatInBar + 1}`;
+    highlightStep(stepNumber);
   }, Math.max(0, (time - audioContext.currentTime) * 1000));
 
-  if (metronomeToggle.checked) {
-    playClick(time, beatInBar === 0);
+  drumRows.forEach(row => {
+    if (row.pattern[stepNumber]) playBuffer(row.sound, time, 0.85);
+  });
+
+  if (metronomeToggle.checked && stepNumber % 4 === 0) {
+    playClick(time, stepNumber === 0);
   }
-
-  if (beatNumber === 0) {
-    playAllClips(time);
-  }
-}
-
-function playClick(time, strong) {
-  const osc = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-
-  osc.frequency.value = strong ? 1200 : 800;
-  gain.gain.setValueAtTime(strong ? 0.22 : 0.12, time);
-  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
-
-  osc.connect(gain);
-  gain.connect(audioContext.destination);
-
-  osc.start(time);
-  osc.stop(time + 0.05);
 }
 
 function playAllClips(startTime) {
@@ -441,46 +267,75 @@ function playAllClips(startTime) {
 
   const loop = document.getElementById("loopToggle").checked;
   const anySolo = tracks.some(t => t.solo);
-  let loadedCount = 0;
 
   tracks.forEach(track => {
-    if (!track.buffer) return;
-    if (track.muted) return;
-    if (anySolo && !track.solo) return;
+    if (!track.buffer || track.muted || (anySolo && !track.solo)) return;
 
     const source = audioContext.createBufferSource();
     const gainNode = audioContext.createGain();
 
     source.buffer = track.buffer;
     source.loop = loop;
-
     gainNode.gain.value = track.volume;
 
     source.connect(gainNode);
     gainNode.connect(audioContext.destination);
-
     source.start(startTime);
 
     track.gainNode = gainNode;
     activeSources.push(source);
-    loadedCount++;
   });
+}
 
-  statusEl.textContent = loadedCount
-    ? `Playing ${loadedCount} clip(s), quantized to beat.`
-    : "No clips loaded yet.";
+function playBuffer(buffer, time, volume = 1) {
+  const source = audioContext.createBufferSource();
+  const gain = audioContext.createGain();
+
+  source.buffer = buffer;
+  gain.gain.value = volume;
+
+  source.connect(gain);
+  gain.connect(audioContext.destination);
+
+  source.start(time);
+}
+
+function playClick(time, strong) {
+  const osc = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+
+  osc.frequency.value = strong ? 1200 : 800;
+  gain.gain.setValueAtTime(strong ? .2 : .1, time);
+  gain.gain.exponentialRampToValueAtTime(.001, time + .04);
+
+  osc.connect(gain);
+  gain.connect(audioContext.destination);
+
+  osc.start(time);
+  osc.stop(time + .05);
+}
+
+function highlightStep(stepNumber) {
+  clearStepHighlights();
+  const rows = document.querySelectorAll(".seq-row");
+
+  rows.forEach(row => {
+    const steps = row.querySelectorAll(".step");
+    if (steps[stepNumber]) steps[stepNumber].classList.add("playing");
+  });
+}
+
+function clearStepHighlights() {
+  document.querySelectorAll(".step.playing").forEach(step => {
+    step.classList.remove("playing");
+  });
 }
 
 function stopAll() {
   activeSources.forEach(source => {
     try { source.stop(); } catch {}
   });
-
   activeSources = [];
-}
-
-function updateBeatDisplay() {
-  beatDisplay.textContent = "BAR 1 : BEAT 1";
 }
 
 function createToneBuffer(freq, duration) {
@@ -489,9 +344,8 @@ function createToneBuffer(freq, duration) {
   const data = buffer.getChannelData(0);
 
   for (let i = 0; i < data.length; i++) {
-    data[i] = Math.sin((i / sampleRate) * freq * Math.PI * 2) * 0.3;
+    data[i] = Math.sin((i / sampleRate) * freq * Math.PI * 2) * .3;
   }
-
   return buffer;
 }
 
@@ -502,9 +356,8 @@ function createPulseBuffer(freq, duration) {
 
   for (let i = 0; i < data.length; i++) {
     const wave = Math.sin((i / sampleRate) * freq * Math.PI * 2);
-    data[i] = wave > 0 ? 0.4 : -0.4;
+    data[i] = wave > 0 ? .4 : -.4;
   }
-
   return buffer;
 }
 
@@ -514,56 +367,51 @@ function createNoiseBuffer(duration) {
   const data = buffer.getChannelData(0);
 
   for (let i = 0; i < data.length; i++) {
-    data[i] = (Math.random() * 2 - 1) * 0.15;
+    data[i] = (Math.random() * 2 - 1) * .15;
   }
-
   return buffer;
 }
 
 function createKickBuffer() {
   const sampleRate = audioContext.sampleRate;
-  const duration = 0.5;
+  const duration = .5;
   const buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
   const data = buffer.getChannelData(0);
 
   for (let i = 0; i < data.length; i++) {
     const t = i / sampleRate;
-    const freq = 150 * Math.pow(0.01, t / duration);
+    const freq = 150 * Math.pow(.01, t / duration);
     const env = Math.pow(1 - t / duration, 3);
     data[i] = Math.sin(2 * Math.PI * freq * t) * env;
   }
-
   return buffer;
 }
 
 function createSnareBuffer() {
   const sampleRate = audioContext.sampleRate;
-  const duration = 0.35;
+  const duration = .35;
   const buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
   const data = buffer.getChannelData(0);
 
   for (let i = 0; i < data.length; i++) {
     const t = i / sampleRate;
     const env = Math.pow(1 - t / duration, 2);
-    const noise = Math.random() * 2 - 1;
-    data[i] = noise * env * 0.5;
+    data[i] = (Math.random() * 2 - 1) * env * .5;
   }
-
   return buffer;
 }
 
 function createHatBuffer() {
   const sampleRate = audioContext.sampleRate;
-  const duration = 0.12;
+  const duration = .12;
   const buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
   const data = buffer.getChannelData(0);
 
   for (let i = 0; i < data.length; i++) {
     const t = i / sampleRate;
     const env = Math.pow(1 - t / duration, 4);
-    data[i] = (Math.random() * 2 - 1) * env * 0.35;
+    data[i] = (Math.random() * 2 - 1) * env * .35;
   }
-
   return buffer;
 }
 
@@ -575,10 +423,11 @@ document.getElementById("playBtn").addEventListener("click", async () => {
 
 document.getElementById("stopBtn").addEventListener("click", stopTransport);
 
+buildSequencer();
+
 for (let i = 0; i < 4; i++) {
   createTrack(i);
 }
 </script>
-
 </body>
 </html>
