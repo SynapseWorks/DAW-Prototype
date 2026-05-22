@@ -62,6 +62,25 @@ label{color:#e8c6ff}
 
     <label><input type="checkbox" id="loopToggle" checked /> LOOP CLIPS</label>
     <label><input type="checkbox" id="metronomeToggle" checked /> METRONOME</label>
+    <label>
+  MASTER
+  <input id="masterVolume" type="range" min="0" max="1.5" step="0.01" value="0.9" />
+</label>
+
+<label>
+  DISTORTION
+  <input id="distortionAmount" type="range" min="0" max="800" step="1" value="0" />
+</label>
+
+<label>
+  FILTER
+  <input id="filterCutoff" type="range" min="200" max="12000" step="10" value="12000" />
+</label>
+
+<label>
+  <input type="checkbox" id="effectsBypass" />
+  BYPASS FX
+</label>
 
     <div class="bpm-control">
       BPM <input id="bpmInput" type="number" value="120" min="40" max="240" />
@@ -121,10 +140,51 @@ label{color:#e8c6ff}
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 const masterGain = audioContext.createGain();
+const distortionNode = audioContext.createWaveShaper();
+const masterFilter = audioContext.createBiquadFilter();
 const mediaStreamDestination = audioContext.createMediaStreamDestination();
 
-masterGain.connect(audioContext.destination);
-masterGain.connect(mediaStreamDestination);
+masterGain.gain.value = 0.9;
+
+masterFilter.type = "lowpass";
+masterFilter.frequency.value = 12000;
+masterFilter.Q.value = 0.8;
+
+function makeDistortionCurve(amount) {
+  const samples = 44100;
+  const curve = new Float32Array(samples);
+  const deg = Math.PI / 180;
+
+  for (let i = 0; i < samples; i++) {
+    const x = (i * 2) / samples - 1;
+    curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
+  }
+
+  return curve;
+}
+
+distortionNode.curve = makeDistortionCurve(0);
+distortionNode.oversample = "4x";
+
+function connectMasterChain() {
+  masterGain.disconnect();
+  distortionNode.disconnect();
+  masterFilter.disconnect();
+
+  const bypass = document.getElementById("effectsBypass")?.checked;
+
+  if (bypass) {
+    masterGain.connect(audioContext.destination);
+    masterGain.connect(mediaStreamDestination);
+  } else {
+    masterGain.connect(distortionNode);
+    distortionNode.connect(masterFilter);
+    masterFilter.connect(audioContext.destination);
+    masterFilter.connect(mediaStreamDestination);
+  }
+}
+
+connectMasterChain();
 
 let mediaRecorder = null;
 let recordedChunks = [];
@@ -323,6 +383,19 @@ function createTrack(index) {
     statusEl.textContent = `${file.name} loaded into TRACK ${index + 1}`;
   });
 }
+  document.getElementById("masterVolume").addEventListener("input", e => {
+  masterGain.gain.value = Number(e.target.value);
+});
+
+document.getElementById("distortionAmount").addEventListener("input", e => {
+  distortionNode.curve = makeDistortionCurve(Number(e.target.value));
+});
+
+document.getElementById("filterCutoff").addEventListener("input", e => {
+  masterFilter.frequency.value = Number(e.target.value);
+});
+
+document.getElementById("effectsBypass").addEventListener("change", connectMasterChain);
 
 function secondsPerStep() {
   return (60 / Number(bpmInput.value || 120)) / 4;
