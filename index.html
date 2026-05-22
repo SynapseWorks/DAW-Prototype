@@ -4,51 +4,25 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Signal Studio</title>
-
 <style>
 *{box-sizing:border-box}
-:root{
-  --bg:#05010a;--panel:rgba(14,5,20,.92);--panel2:#12061a;
-  --hot:#ff2d95;--fire:#ff6b3d;--gold:#ffef8a;
-  --text:#f4d8ff;--muted:#bba2cf;--line:rgba(255,45,149,.25)
-}
-body{
-  margin:0;
-  background:radial-gradient(circle at 50% 0%,rgba(255,0,90,.12),transparent 35%),
-  radial-gradient(circle at 80% 20%,rgba(255,107,61,.08),transparent 30%),
-  linear-gradient(180deg,#05010a,#0d0216 55%,#030104);
-  color:var(--text);font-family:"Segoe UI",system-ui,sans-serif;min-height:100vh;overflow-x:hidden
-}
-body::before{
-  content:"";position:fixed;inset:0;pointer-events:none;
-  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px);
-  background-size:100% 4px;opacity:.16;animation:scan 10s linear infinite;z-index:10
-}
+:root{--bg:#05010a;--panel:rgba(14,5,20,.92);--panel2:#12061a;--hot:#ff2d95;--fire:#ff6b3d;--gold:#ffef8a;--text:#f4d8ff;--muted:#bba2cf;--line:rgba(255,45,149,.25)}
+body{margin:0;background:radial-gradient(circle at 50% 0%,rgba(255,0,90,.12),transparent 35%),radial-gradient(circle at 80% 20%,rgba(255,107,61,.08),transparent 30%),linear-gradient(180deg,#05010a,#0d0216 55%,#030104);color:var(--text);font-family:"Segoe UI",system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px);background-size:100% 4px;opacity:.16;animation:scan 10s linear infinite;z-index:10}
 @keyframes scan{from{transform:translateY(0)}to{transform:translateY(4px)}}
 header{text-align:center;padding:2rem 1rem 1rem}
-h1{
-  margin:0;font-size:clamp(2rem,5vw,4rem);letter-spacing:.2em;color:var(--hot);
-  text-shadow:0 0 10px var(--hot),0 0 24px rgba(255,45,149,.8),0 0 50px rgba(255,45,149,.35)
-}
+h1{margin:0;font-size:clamp(2rem,5vw,4rem);letter-spacing:.2em;color:var(--hot);text-shadow:0 0 10px var(--hot),0 0 24px rgba(255,45,149,.8),0 0 50px rgba(255,45,149,.35)}
 .subtitle{margin-top:1rem;color:#9f8bb7;letter-spacing:.08em}
 .container{width:min(1200px,95%);margin:auto;padding-bottom:4rem}
-.transport,.sequencer,.track,.visual-panel{
-  background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:1.25rem;margin-bottom:1rem;
-  box-shadow:0 0 25px rgba(255,45,149,.08),inset 0 0 20px rgba(255,255,255,.015)
-}
+.transport,.sequencer,.track,.visual-panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 0 25px rgba(255,45,149,.08),inset 0 0 20px rgba(255,255,255,.015)}
 .transport{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:center}
-button{
-  border:none;cursor:pointer;padding:.75rem 1.1rem;border-radius:999px;
-  font-weight:800;letter-spacing:.08em;transition:.2s
-}
+button{border:none;cursor:pointer;padding:.75rem 1.1rem;border-radius:999px;font-weight:800;letter-spacing:.08em;transition:.2s}
 button:hover{transform:translateY(-2px)}
 .play-btn{background:linear-gradient(135deg,var(--hot),var(--fire));color:white;box-shadow:0 0 20px rgba(255,45,149,.35)}
 .stop-btn{background:#2b0d1d;color:#ff8dc0;border:1px solid rgba(255,45,149,.4)}
 .small-btn{background:#1d0b26;color:#e8c6ff;border:1px solid rgba(255,45,149,.25);padding:.5rem .8rem}
 .small-btn.active{background:var(--hot);color:white;box-shadow:0 0 15px rgba(255,45,149,.45)}
-.control-pill,.beat-display{
-  background:var(--panel2);color:#f3d7ff;border:1px solid var(--line);padding:.7rem .9rem;border-radius:14px
-}
+.control-pill,.beat-display{background:var(--panel2);color:#f3d7ff;border:1px solid var(--line);padding:.7rem .9rem;border-radius:14px}
 .control-pill input[type=number]{width:80px}
 .beat-display{min-width:140px;text-align:center;color:#ff7db7;font-weight:800}
 .section-title{color:#ff7db7;letter-spacing:.12em;margin:0 0 1rem}
@@ -78,19 +52,11 @@ input[type=file]{color:#d8c0f0;width:100%}
 input[type=range]{width:100%;accent-color:var(--hot)}
 label{color:#e8c6ff;font-size:.9rem}
 .status{text-align:center;margin-top:1rem;color:var(--muted);opacity:.9}
-canvas{
-  width:100%;height:150px;display:block;background:linear-gradient(180deg,rgba(255,45,149,.06),rgba(0,0,0,.18));
-  border:1px solid rgba(255,45,149,.25);border-radius:18px
-}
+canvas{width:100%;height:150px;display:block;background:linear-gradient(180deg,rgba(255,45,149,.06),rgba(0,0,0,.18));border:1px solid rgba(255,45,149,.25);border-radius:18px}
 .kbd{display:grid;grid-template-columns:repeat(8,1fr);gap:.4rem;margin-top:.75rem}
 .key{border-radius:10px;border:1px solid rgba(255,45,149,.25);background:#16071f;color:#f4d8ff;padding:.8rem .4rem;text-align:center;font-weight:800}
 .key.on{background:var(--hot);box-shadow:0 0 16px rgba(255,45,149,.6)}
-@media(max-width:850px){
-  .track-bottom,.mini-controls,.arrangement-grid{grid-template-columns:1fr}
-  .seq-row{grid-template-columns:70px repeat(8,1fr)}
-  .piano-row{grid-template-columns:50px repeat(8,1fr)}
-  .kbd{grid-template-columns:repeat(4,1fr)}
-}
+@media(max-width:850px){.track-bottom,.mini-controls,.arrangement-grid{grid-template-columns:1fr}.seq-row{grid-template-columns:70px repeat(8,1fr)}.piano-row{grid-template-columns:50px repeat(8,1fr)}.kbd{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
 
@@ -101,7 +67,6 @@ canvas{
 </header>
 
 <div class="container">
-
   <div class="transport">
     <button class="play-btn" id="playBtn">PLAY</button>
     <button class="stop-btn" id="stopBtn">STOP</button>
@@ -110,11 +75,9 @@ canvas{
     <button class="small-btn" id="exportProject">EXPORT PROJECT</button>
     <button class="small-btn" id="importProjectBtn">IMPORT PROJECT</button>
     <input type="file" id="importProjectInput" accept="application/json" hidden />
-
     <label><input type="checkbox" id="loopToggle" checked /> LOOP CLIPS</label>
     <label><input type="checkbox" id="metronomeToggle" checked /> METRONOME</label>
     <label><input type="checkbox" id="effectsBypass" /> BYPASS FX</label>
-
     <div class="control-pill">BPM <input id="bpmInput" type="number" value="120" min="40" max="240" /></div>
     <div class="beat-display" id="beatDisplay">BAR 1 : BEAT 1</div>
   </div>
@@ -126,13 +89,16 @@ canvas{
 
   <section class="sequencer">
     <h2 class="section-title">ARRANGEMENT VIEW</h2>
-
     <div class="sequencer-actions">
       <label><input type="checkbox" id="autoArrangeToggle" /> AUTO-ARRANGE SONG MODE</label>
       <label>Bars Per Section <input id="barsPerSection" type="number" min="1" max="16" value="4" /></label>
       <div class="control-pill" id="arrangeStatus">AUTO MODE OFF</div>
     </div>
-
+    <div class="sequencer-actions">
+      <button class="small-btn" id="saveToSection">SAVE CURRENT TO SECTION</button>
+      <button class="small-btn" id="duplicateSection">DUPLICATE TO NEXT</button>
+      <button class="small-btn" id="resetSection">RESET SECTION</button>
+    </div>
     <div class="arrangement-grid">
       <button class="arrange-btn active" data-section="intro">INTRO</button>
       <button class="arrange-btn" data-section="verse">VERSE</button>
@@ -168,50 +134,27 @@ canvas{
   <section class="sequencer">
     <h2 class="section-title">ABYSS SYNTH SEQUENCER</h2>
     <div class="sequencer-actions">
-      <label>Wave
-        <select id="synthWave">
-          <option value="sawtooth">Saw</option>
-          <option value="square">Square</option>
-          <option value="triangle">Triangle</option>
-          <option value="sine">Sine</option>
-        </select>
-      </label>
+      <label>Wave <select id="synthWave"><option value="sawtooth">Saw</option><option value="square">Square</option><option value="triangle">Triangle</option><option value="sine">Sine</option></select></label>
       <label>Synth Volume <input id="synthVolume" type="range" min="0" max="1" step="0.01" value="0.35" /></label>
       <button class="small-btn" id="randomizeSynth">RANDOMIZE SYNTH</button>
       <button class="small-btn" id="clearSynth">CLEAR SYNTH</button>
       <button class="small-btn" id="aiPattern">SUMMON PATTERN</button>
     </div>
     <div id="synthGrid"></div>
-
     <div class="kbd" id="keyboard">
-      <div class="key" data-note="C3">A<br>C3</div>
-      <div class="key" data-note="D3">S<br>D3</div>
-      <div class="key" data-note="Eb3">D<br>Eb3</div>
-      <div class="key" data-note="F3">F<br>F3</div>
-      <div class="key" data-note="G3">G<br>G3</div>
-      <div class="key" data-note="Ab3">H<br>Ab3</div>
-      <div class="key" data-note="Bb3">J<br>Bb3</div>
-      <div class="key" data-note="C4">K<br>C4</div>
+      <div class="key" data-note="C3">A<br>C3</div><div class="key" data-note="D3">S<br>D3</div><div class="key" data-note="Eb3">D<br>Eb3</div><div class="key" data-note="F3">F<br>F3</div>
+      <div class="key" data-note="G3">G<br>G3</div><div class="key" data-note="Ab3">H<br>Ab3</div><div class="key" data-note="Bb3">J<br>Bb3</div><div class="key" data-note="C4">K<br>C4</div>
     </div>
   </section>
 
   <section class="sequencer">
     <h2 class="section-title">PIANO ROLL / MELODY GRID</h2>
-
     <div class="sequencer-actions">
       <label>Lead Volume <input id="leadVolume" type="range" min="0" max="1" step="0.01" value="0.3" /></label>
-      <label>Lead Wave
-        <select id="leadWave">
-          <option value="triangle">Triangle</option>
-          <option value="sine">Sine</option>
-          <option value="sawtooth">Saw</option>
-          <option value="square">Square</option>
-        </select>
-      </label>
+      <label>Lead Wave <select id="leadWave"><option value="triangle">Triangle</option><option value="sine">Sine</option><option value="sawtooth">Saw</option><option value="square">Square</option></select></label>
       <button class="small-btn" id="randomizePianoRoll">RANDOMIZE MELODY</button>
       <button class="small-btn" id="clearPianoRoll">CLEAR MELODY</button>
     </div>
-
     <div id="pianoRoll"></div>
   </section>
 
@@ -225,7 +168,6 @@ canvas{
 
 <script>
 const audioContext=new (window.AudioContext||window.webkitAudioContext)();
-
 const masterGain=audioContext.createGain();
 const distortionNode=audioContext.createWaveShaper();
 const masterFilter=audioContext.createBiquadFilter();
@@ -267,7 +209,6 @@ function connectMasterChain(){
 connectMasterChain();
 
 let mediaRecorder=null,recordedChunks=[],isRecording=false;
-
 const tracksContainer=document.getElementById("tracks");
 const statusEl=document.getElementById("status");
 const beatDisplay=document.getElementById("beatDisplay");
@@ -281,13 +222,8 @@ const autoArrangeToggle=document.getElementById("autoArrangeToggle");
 const barsPerSectionInput=document.getElementById("barsPerSection");
 
 const tracks=[];
-let activeSources=[];
-let schedulerTimer=null;
-let currentBeat=0,currentStep=0,nextBeatTime=0,currentSection="intro";
-let autoSectionIndex=0;
-
-const lookahead=25,scheduleAheadTime=.1,stepsPerBar=16;
-const sectionOrder=["intro","verse","chorus","breakdown"];
+let activeSources=[],schedulerTimer=null,currentBeat=0,currentStep=0,nextBeatTime=0,currentSection="intro",autoSectionIndex=0;
+const lookahead=25,scheduleAheadTime=.1,stepsPerBar=16,sectionOrder=["intro","verse","chorus","breakdown"];
 
 const drumRows=[
   {name:"KICK",sound:createKickBuffer(),pattern:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]},
@@ -318,7 +254,7 @@ let synthPattern=["C2","","","C2","G2","","","Eb2","C2","","Bb2","","Ab2","","G2
 const pianoNotes=["C4","Bb3","Ab3","G3","F3","Eb3","D3","C3"];
 let pianoRollPattern=pianoNotes.map(()=>Array.from({length:16},()=>0));
 
-const songSections={
+const defaultSongSections={
   intro:{
     drums:[[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]],
     synth:["C2","","","","G2","","","","C2","","","","Bb2","","",""],
@@ -341,6 +277,8 @@ const songSections={
   }
 };
 
+let songSections=JSON.parse(JSON.stringify(defaultSongSections));
+
 function makeMelody(stepNotes){
   const grid=pianoNotes.map(()=>Array.from({length:16},()=>0));
   stepNotes.forEach((note,stepIndex)=>{
@@ -348,6 +286,28 @@ function makeMelody(stepNotes){
     if(noteIndex>=0)grid[noteIndex][stepIndex]=1;
   });
   return grid;
+}
+
+function captureCurrentSectionData(){
+  return{drums:drumRows.map(row=>[...row.pattern]),synth:[...synthPattern],melody:pianoRollPattern.map(row=>[...row])};
+}
+
+function saveCurrentToSection(){
+  songSections[currentSection]=captureCurrentSectionData();
+  statusEl.textContent=`${currentSection.toUpperCase()} section saved.`;
+}
+
+function duplicateCurrentToNextSection(){
+  const currentIndex=sectionOrder.indexOf(currentSection);
+  const nextSection=sectionOrder[(currentIndex+1)%sectionOrder.length];
+  songSections[nextSection]=captureCurrentSectionData();
+  statusEl.textContent=`${currentSection.toUpperCase()} duplicated to ${nextSection.toUpperCase()}.`;
+}
+
+function resetCurrentSection(){
+  songSections[currentSection]=JSON.parse(JSON.stringify(defaultSongSections[currentSection]));
+  applySection(currentSection);
+  statusEl.textContent=`${currentSection.toUpperCase()} reset to default.`;
 }
 
 function buildSequencer(){
@@ -422,26 +382,18 @@ function createTrack(index){
   el.innerHTML=`
     <div class="track-top">
       <div class="track-name">TRACK ${index+1}</div>
-      <div class="track-controls">
-        <button class="small-btn mute-btn">MUTE</button>
-        <button class="small-btn solo-btn">SOLO</button>
-      </div>
+      <div class="track-controls"><button class="small-btn mute-btn">MUTE</button><button class="small-btn solo-btn">SOLO</button></div>
     </div>
     <div class="track-bottom">
       <div>
         <input type="file" accept="audio/*" class="file-input" />
-        <select class="sample-select">
-          <option value="">Built-in Samples</option>
-          ${Object.keys(sampleLibrary).map(name=>`<option>${name}</option>`).join("")}
-        </select>
+        <select class="sample-select"><option value="">Built-in Samples</option>${Object.keys(sampleLibrary).map(name=>`<option>${name}</option>`).join("")}</select>
       </div>
       <div class="mini-controls">
         <label>Volume <input type="range" min="0" max="1" step="0.01" value="0.8" class="volume-slider" /></label>
         <label>Pan <input type="range" min="-1" max="1" step="0.01" value="0" class="pan-slider" /></label>
       </div>
-      <div class="mini-controls">
-        <label>Filter <input type="range" min="200" max="12000" step="10" value="12000" class="track-filter" /></label>
-      </div>
+      <div class="mini-controls"><label>Filter <input type="range" min="200" max="12000" step="10" value="12000" class="track-filter" /></label></div>
     </div>`;
   tracksContainer.appendChild(el);
 
@@ -510,7 +462,6 @@ function scheduler(){
 function scheduleStep(stepNumber,time){
   const beatInBar=Math.floor(stepNumber/4);
   const barNumber=Math.floor(currentBeat/stepsPerBar)+1;
-
   if(stepNumber===0)maybeAdvanceArrangement(barNumber);
 
   setTimeout(()=>{
@@ -523,29 +474,21 @@ function scheduleStep(stepNumber,time){
   drumRows.forEach(row=>{if(row.pattern[stepNumber])playBuffer(row.sound,time,.85)});
   playSynthNote(synthPattern[stepNumber],time);
   playPianoRollStep(stepNumber,time);
-
   if(metronomeToggle.checked&&stepNumber%4===0)playClick(time,stepNumber===0);
 }
 
 function maybeAdvanceArrangement(barNumber){
   if(!autoArrangeToggle.checked)return;
   const barsPerSection=Math.max(1,Number(barsPerSectionInput.value||4));
-
-  if(barNumber>1 && (barNumber-1)%barsPerSection===0){
+  if(barNumber>1&&(barNumber-1)%barsPerSection===0){
     autoSectionIndex=(autoSectionIndex+1)%sectionOrder.length;
     applySection(sectionOrder[autoSectionIndex],true);
   }
 }
 
 function updateArrangeStatus(stopped=false){
-  if(stopped){
-    arrangeStatus.textContent=autoArrangeToggle.checked?"AUTO READY":"AUTO MODE OFF";
-    return;
-  }
-  if(!autoArrangeToggle.checked){
-    arrangeStatus.textContent=`MANUAL: ${currentSection.toUpperCase()}`;
-    return;
-  }
+  if(stopped){arrangeStatus.textContent=autoArrangeToggle.checked?"AUTO READY":"AUTO MODE OFF";return}
+  if(!autoArrangeToggle.checked){arrangeStatus.textContent=`MANUAL: ${currentSection.toUpperCase()}`;return}
   const barsPerSection=Math.max(1,Number(barsPerSectionInput.value||4));
   const currentBar=Math.floor(currentBeat/stepsPerBar)+1;
   const barInSection=((currentBar-1)%barsPerSection)+1;
@@ -556,17 +499,13 @@ function playAllClips(startTime){
   stopAll();
   const loop=document.getElementById("loopToggle").checked;
   const anySolo=tracks.some(t=>t.solo);
-
   tracks.forEach(track=>{
     if(!track.buffer||track.muted||(anySolo&&!track.solo))return;
-
     const source=audioContext.createBufferSource(),gainNode=audioContext.createGain();
     const panNode=audioContext.createStereoPanner(),filterNode=audioContext.createBiquadFilter();
-
     source.buffer=track.buffer;source.loop=loop;
     gainNode.gain.value=track.volume;panNode.pan.value=track.pan;
     filterNode.type="lowpass";filterNode.frequency.value=track.filter;
-
     source.connect(gainNode);gainNode.connect(panNode);panNode.connect(filterNode);filterNode.connect(masterGain);
     source.start(startTime);
     track.gainNode=gainNode;
@@ -688,11 +627,9 @@ function applySection(sectionName,fromAuto=false){
   synthPattern=[...section.synth];
   pianoRollPattern=section.melody.map(row=>[...row]);
   refreshSynthButtons();refreshPianoRoll();
-
   document.querySelectorAll(".arrange-btn").forEach(btn=>{
     btn.classList.toggle("active",btn.dataset.section===sectionName);
   });
-
   statusEl.textContent=fromAuto?`Auto-arranged to ${sectionName.toUpperCase()}.`:`${sectionName.toUpperCase()} section loaded.`;
   updateArrangeStatus();
 }
@@ -722,7 +659,7 @@ function stopRecording(){
 
 function getProjectData(){
   return{
-    app:"Signal Studio",version:4,currentSection,
+    app:"Signal Studio",version:5,currentSection,songSections,
     autoArrange:autoArrangeToggle.checked,
     barsPerSection:Number(barsPerSectionInput.value),
     bpm:Number(bpmInput.value),
@@ -751,8 +688,8 @@ function exportProjectFile(){
 
 function loadProjectData(project){
   if(!project||project.app!=="Signal Studio"){statusEl.textContent="Invalid Signal Studio project file.";return}
-
   currentSection=project.currentSection||"intro";
+  if(project.songSections){songSections=project.songSections}
   autoArrangeToggle.checked=project.autoArrange??false;
   barsPerSectionInput.value=project.barsPerSection||4;
   bpmInput.value=project.bpm||120;
@@ -795,11 +732,9 @@ function loadProjectData(project){
       track.solo=saved.solo??false;
     });
   }
-
   document.querySelectorAll(".arrange-btn").forEach(btn=>{
     btn.classList.toggle("active",btn.dataset.section===currentSection);
   });
-
   updateArrangeStatus(true);
   statusEl.textContent="Project imported.";
 }
@@ -993,6 +928,10 @@ document.getElementById("importProjectInput").addEventListener("change",async e=
 document.querySelectorAll(".arrange-btn").forEach(btn=>{
   btn.addEventListener("click",()=>applySection(btn.dataset.section));
 });
+
+document.getElementById("saveToSection").addEventListener("click",saveCurrentToSection);
+document.getElementById("duplicateSection").addEventListener("click",duplicateCurrentToNextSection);
+document.getElementById("resetSection").addEventListener("click",resetCurrentSection);
 
 buildSequencer();
 buildSynthSequencer();
