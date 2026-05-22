@@ -83,7 +83,31 @@ select{background:#12061a;color:#f3d7ff;border:1px solid rgba(255,45,149,.25);pa
 </div>
     <div id="sequencerGrid"></div>
   </section>
+<section class="sequencer">
+  <h2 class="section-title">ABYSS SYNTH SEQUENCER</h2>
 
+  <div class="sequencer-actions">
+    <label>
+      Wave
+      <select id="synthWave">
+        <option value="sawtooth">Saw</option>
+        <option value="square">Square</option>
+        <option value="triangle">Triangle</option>
+        <option value="sine">Sine</option>
+      </select>
+    </label>
+
+    <label>
+      Synth Volume
+      <input id="synthVolume" type="range" min="0" max="1" step="0.01" value="0.35" />
+    </label>
+
+    <button class="small-btn" id="randomizeSynth">RANDOMIZE SYNTH</button>
+    <button class="small-btn" id="clearSynth">CLEAR SYNTH</button>
+  </div>
+
+  <div id="synthGrid"></div>
+</section>
   <div id="tracks"></div>
 
   <div class="status" id="status">Awaiting audio signal...</div>
