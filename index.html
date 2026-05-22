@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Signal Studio // Infernal Build</title>
+<title>Signal Studio</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(circle at top,rgba(255,0,90,.08),transparent 40%),linear-gradient(180deg,#05010a,#0d0216 50%,#030104);color:#f4d8ff;font-family:"Segoe UI",sans-serif;min-height:100vh;overflow-x:hidden}
@@ -25,11 +25,14 @@ button:hover{transform:translateY(-2px)}
 .bpm-control input{width:80px;background:#05010a;color:#f3d7ff;border:1px solid rgba(255,45,149,.3);border-radius:8px;padding:.35rem}
 .beat-display{min-width:130px;text-align:center;color:#ff7db7;font-weight:bold}
 .section-title{color:#ff7db7;letter-spacing:.12em;margin:0 0 1rem}
+.sequencer-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;align-items:center}
 .seq-row{display:grid;grid-template-columns:90px repeat(16,1fr);gap:.45rem;align-items:center;margin:.65rem 0}
 .seq-label{font-weight:bold;color:#f8b3d4}
 .step{height:38px;border-radius:10px;background:#16071f;border:1px solid rgba(255,45,149,.25);cursor:pointer}
 .step.active{background:#ff2d95;box-shadow:0 0 16px rgba(255,45,149,.55)}
 .step.playing{outline:2px solid #ffef8a;transform:scale(1.08)}
+.synth-step{display:grid;grid-template-columns:1fr;gap:.25rem}
+.synth-step select{width:100%;font-size:.75rem;padding:.35rem}
 .track-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:1rem}
 .track-name{font-size:1.2rem;font-weight:bold;color:#ff7db7;letter-spacing:.08em}
 .track-controls{display:flex;gap:.5rem}
@@ -37,26 +40,9 @@ button:hover{transform:translateY(-2px)}
 input[type=file]{color:#d8c0f0}
 input[type=range]{width:100%}
 select{background:#12061a;color:#f3d7ff;border:1px solid rgba(255,45,149,.25);padding:.7rem;border-radius:12px}
+label{color:#e8c6ff}
 .status{text-align:center;margin-top:1rem;color:#bba2cf;opacity:.8}
-@media(max-width:850px){.track-bottom{grid-template-columns:1fr}.seq-row{grid-template-columns:70px repeat(8,1fr)}.seq-row .step:nth-child(n+10){margin-top:.3rem}}
-
-  .sequencer-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-  .synth-step {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.25rem;
-}
-
-.synth-step select {
-  width: 100%;
-  font-size: 0.75rem;
-  padding: 0.35rem;
-}
+@media(max-width:850px){.track-bottom{grid-template-columns:1fr}.seq-row{grid-template-columns:70px repeat(8,1fr)}}
 </style>
 </head>
 
@@ -67,9 +53,12 @@ select{background:#12061a;color:#f3d7ff;border:1px solid rgba(255,45,149,.25);pa
 </header>
 
 <div class="container">
+
   <div class="transport">
     <button class="play-btn" id="playBtn">PLAY</button>
     <button class="stop-btn" id="stopBtn">STOP</button>
+    <button class="small-btn" id="recordBtn">RECORD</button>
+    <button class="small-btn" id="stopRecordBtn">STOP REC</button>
 
     <label><input type="checkbox" id="loopToggle" checked /> LOOP CLIPS</label>
     <label><input type="checkbox" id="metronomeToggle" checked /> METRONOME</label>
@@ -83,50 +72,113 @@ select{background:#12061a;color:#f3d7ff;border:1px solid rgba(255,45,149,.25);pa
 
   <section class="sequencer">
     <h2 class="section-title">RITUAL DRUM SEQUENCER</h2>
+
     <div class="sequencer-actions">
-  <button class="small-btn" id="presetBasic">BASIC</button>
-  <button class="small-btn" id="presetIndustrial">INDUSTRIAL</button>
-  <button class="small-btn" id="presetRitual">RITUAL</button>
-  <button class="small-btn" id="randomizePattern">RANDOMIZE</button>
-  <button class="small-btn" id="clearPattern">CLEAR</button>
-  <button class="small-btn" id="savePattern">SAVE</button>
-  <button class="small-btn" id="loadPattern">LOAD</button>
-</div>
+      <button class="small-btn" id="presetBasic">BASIC</button>
+      <button class="small-btn" id="presetIndustrial">INDUSTRIAL</button>
+      <button class="small-btn" id="presetRitual">RITUAL</button>
+      <button class="small-btn" id="randomizePattern">RANDOMIZE</button>
+      <button class="small-btn" id="clearPattern">CLEAR</button>
+      <button class="small-btn" id="savePattern">SAVE</button>
+      <button class="small-btn" id="loadPattern">LOAD</button>
+    </div>
+
     <div id="sequencerGrid"></div>
   </section>
-<section class="sequencer">
-  <h2 class="section-title">ABYSS SYNTH SEQUENCER</h2>
 
-  <div class="sequencer-actions">
-    <label>
-      Wave
-      <select id="synthWave">
-        <option value="sawtooth">Saw</option>
-        <option value="square">Square</option>
-        <option value="triangle">Triangle</option>
-        <option value="sine">Sine</option>
-      </select>
-    </label>
+  <section class="sequencer">
+    <h2 class="section-title">ABYSS SYNTH SEQUENCER</h2>
 
-    <label>
-      Synth Volume
-      <input id="synthVolume" type="range" min="0" max="1" step="0.01" value="0.35" />
-    </label>
+    <div class="sequencer-actions">
+      <label>
+        Wave
+        <select id="synthWave">
+          <option value="sawtooth">Saw</option>
+          <option value="square">Square</option>
+          <option value="triangle">Triangle</option>
+          <option value="sine">Sine</option>
+        </select>
+      </label>
 
-    <button class="small-btn" id="randomizeSynth">RANDOMIZE SYNTH</button>
-    <button class="small-btn" id="clearSynth">CLEAR SYNTH</button>
-  </div>
+      <label>
+        Synth Volume
+        <input id="synthVolume" type="range" min="0" max="1" step="0.01" value="0.35" />
+      </label>
 
-  <div id="synthGrid"></div>
-</section>
+      <button class="small-btn" id="randomizeSynth">RANDOMIZE SYNTH</button>
+      <button class="small-btn" id="clearSynth">CLEAR SYNTH</button>
+    </div>
+
+    <div id="synthGrid"></div>
+  </section>
+
   <div id="tracks"></div>
 
   <div class="status" id="status">Awaiting audio signal...</div>
 </div>
 
 <script>
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-  const synthGrid = document.getElementById("synthGrid");
+const masterGain = audioContext.createGain();
+const mediaStreamDestination = audioContext.createMediaStreamDestination();
+
+masterGain.connect(audioContext.destination);
+masterGain.connect(mediaStreamDestination);
+
+let mediaRecorder = null;
+let recordedChunks = [];
+let isRecording = false;
+
+const tracksContainer = document.getElementById("tracks");
+const statusEl = document.getElementById("status");
+const beatDisplay = document.getElementById("beatDisplay");
+const bpmInput = document.getElementById("bpmInput");
+const metronomeToggle = document.getElementById("metronomeToggle");
+const sequencerGrid = document.getElementById("sequencerGrid");
+const synthGrid = document.getElementById("synthGrid");
+
+const tracks = [];
+let activeSources = [];
+let schedulerTimer = null;
+let currentBeat = 0;
+let currentStep = 0;
+let nextBeatTime = 0;
+
+const lookahead = 25;
+const scheduleAheadTime = 0.1;
+const stepsPerBar = 16;
+
+const drumRows = [
+  { name: "KICK", sound: createKickBuffer(), pattern: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0] },
+  { name: "SNARE", sound: createSnareBuffer(), pattern: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0] },
+  { name: "HAT", sound: createHatBuffer(), pattern: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0] }
+];
+
+const presets = {
+  basic: [
+    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+    [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+    [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]
+  ],
+  industrial: [
+    [1,0,0,1,1,0,0,1,1,0,1,0,1,0,0,1],
+    [0,0,1,0,0,1,0,0,0,0,1,0,0,1,0,0],
+    [1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1]
+  ],
+  ritual: [
+    [1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0],
+    [0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1],
+    [1,0,0,1,0,1,0,0,1,0,0,1,0,1,0,0]
+  ]
+};
+
+const sampleLibrary = {
+  "Sine Drone": createToneBuffer(110, 2),
+  "Dark Pulse": createPulseBuffer(70, 1.5),
+  "Infernal Bass": createToneBuffer(55, 2),
+  "Noise Wash": createNoiseBuffer(2)
+};
 
 const synthNotes = [
   "", "C2", "D2", "Eb2", "F2", "G2", "Ab2", "Bb2",
@@ -139,43 +191,9 @@ let synthPattern = [
   "C2", "", "Bb2", "",
   "Ab2", "", "G2", ""
 ];
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-const tracksContainer = document.getElementById("tracks");
-const statusEl = document.getElementById("status");
-const beatDisplay = document.getElementById("beatDisplay");
-const bpmInput = document.getElementById("bpmInput");
-const metronomeToggle = document.getElementById("metronomeToggle");
-const sequencerGrid = document.getElementById("sequencerGrid");
-
-const tracks = [];
-let activeSources = [];
-let isPlaying = false;
-let schedulerTimer = null;
-let currentBeat = 0;
-let currentStep = 0;
-let nextBeatTime = 0;
-
-const lookahead = 25;
-const scheduleAheadTime = 0.1;
-const beatsPerBar = 4;
-const stepsPerBar = 16;
-
-const drumRows = [
-  { name: "KICK", sound: createKickBuffer(), pattern: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0] },
-  { name: "SNARE", sound: createSnareBuffer(), pattern: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0] },
-  { name: "HAT", sound: createHatBuffer(), pattern: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0] }
-];
-
-const sampleLibrary = {
-  "Sine Drone": createToneBuffer(110, 2),
-  "Dark Pulse": createPulseBuffer(70, 1.5),
-  "Infernal Bass": createToneBuffer(55, 2),
-  "Noise Wash": createNoiseBuffer(2)
-};
 
 function buildSequencer() {
-  drumRows.forEach((row, rowIndex) => {
+  drumRows.forEach((row) => {
     const rowEl = document.createElement("div");
     rowEl.className = "seq-row";
     rowEl.innerHTML = `<div class="seq-label">${row.name}</div>`;
@@ -195,6 +213,37 @@ function buildSequencer() {
 
     sequencerGrid.appendChild(rowEl);
   });
+}
+
+function buildSynthSequencer() {
+  const rowEl = document.createElement("div");
+  rowEl.className = "seq-row";
+  rowEl.innerHTML = `<div class="seq-label">BASS</div>`;
+
+  synthPattern.forEach((note, stepIndex) => {
+    const wrap = document.createElement("div");
+    wrap.className = "synth-step";
+
+    const select = document.createElement("select");
+    select.dataset.step = stepIndex;
+
+    synthNotes.forEach(noteName => {
+      const option = document.createElement("option");
+      option.value = noteName;
+      option.textContent = noteName || "--";
+      if (noteName === note) option.selected = true;
+      select.appendChild(option);
+    });
+
+    select.addEventListener("change", () => {
+      synthPattern[stepIndex] = select.value;
+    });
+
+    wrap.appendChild(select);
+    rowEl.appendChild(wrap);
+  });
+
+  synthGrid.appendChild(rowEl);
 }
 
 function createTrack(index) {
@@ -264,6 +313,7 @@ function createTrack(index) {
   fileInput.addEventListener("change", async e => {
     const file = e.target.files[0];
     if (!file) return;
+
     await audioContext.resume();
 
     const arrayBuffer = await file.arrayBuffer();
@@ -279,7 +329,6 @@ function secondsPerStep() {
 }
 
 function startTransport() {
-  isPlaying = true;
   currentBeat = 0;
   currentStep = 0;
   nextBeatTime = audioContext.currentTime + 0.05;
@@ -289,7 +338,6 @@ function startTransport() {
 }
 
 function stopTransport() {
-  isPlaying = false;
   clearInterval(schedulerTimer);
   schedulerTimer = null;
   stopAll();
@@ -313,7 +361,6 @@ function scheduleStep(stepNumber, time) {
   const beatInBar = Math.floor(stepNumber / 4);
   const barNumber = Math.floor(currentBeat / stepsPerBar) + 1;
 
-  
   setTimeout(() => {
     beatDisplay.textContent = `BAR ${barNumber} : BEAT ${beatInBar + 1}`;
     highlightStep(stepNumber);
@@ -322,7 +369,9 @@ function scheduleStep(stepNumber, time) {
   drumRows.forEach(row => {
     if (row.pattern[stepNumber]) playBuffer(row.sound, time, 0.85);
   });
-playSynthNote(synthPattern[stepNumber], time);
+
+  playSynthNote(synthPattern[stepNumber], time);
+
   if (metronomeToggle.checked && stepNumber % 4 === 0) {
     playClick(time, stepNumber === 0);
   }
@@ -345,7 +394,7 @@ function playAllClips(startTime) {
     gainNode.gain.value = track.volume;
 
     source.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    gainNode.connect(masterGain);
     source.start(startTime);
 
     track.gainNode = gainNode;
@@ -361,7 +410,7 @@ function playBuffer(buffer, time, volume = 1) {
   gain.gain.value = volume;
 
   source.connect(gain);
-  gain.connect(audioContext.destination);
+  gain.connect(masterGain);
 
   source.start(time);
 }
@@ -375,41 +424,10 @@ function playClick(time, strong) {
   gain.gain.exponentialRampToValueAtTime(.001, time + .04);
 
   osc.connect(gain);
-  gain.connect(audioContext.destination);
+  gain.connect(masterGain);
 
   osc.start(time);
   osc.stop(time + .05);
-}
-
-  function buildSynthSequencer() {
-  const rowEl = document.createElement("div");
-  rowEl.className = "seq-row";
-  rowEl.innerHTML = `<div class="seq-label">BASS</div>`;
-
-  synthPattern.forEach((note, stepIndex) => {
-    const wrap = document.createElement("div");
-    wrap.className = "synth-step";
-
-    const select = document.createElement("select");
-    select.dataset.step = stepIndex;
-
-    synthNotes.forEach(noteName => {
-      const option = document.createElement("option");
-      option.value = noteName;
-      option.textContent = noteName || "--";
-      if (noteName === note) option.selected = true;
-      select.appendChild(option);
-    });
-
-    select.addEventListener("change", () => {
-      synthPattern[stepIndex] = select.value;
-    });
-
-    wrap.appendChild(select);
-    rowEl.appendChild(wrap);
-  });
-
-  synthGrid.appendChild(rowEl);
 }
 
 function noteToFrequency(note) {
@@ -428,8 +446,8 @@ function noteToFrequency(note) {
 
   const pitch = match[1];
   const octave = Number(match[2]);
-
   const midi = 12 * (octave + 1) + noteMap[pitch];
+
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
@@ -457,18 +475,10 @@ function playSynthNote(note, time) {
 
   osc.connect(filter);
   filter.connect(gain);
-  gain.connect(audioContext.destination);
+  gain.connect(masterGain);
 
   osc.start(time);
   osc.stop(time + secondsPerStep() * 0.95);
-}
-
-function refreshSynthButtons() {
-  const selects = synthGrid.querySelectorAll("select");
-
-  selects.forEach((select, index) => {
-    select.value = synthPattern[index];
-  });
 }
 
 function highlightStep(stepNumber) {
@@ -494,6 +504,67 @@ function stopAll() {
   activeSources = [];
 }
 
+function applyPattern(patternSet) {
+  drumRows.forEach((row, rowIndex) => {
+    row.pattern = [...patternSet[rowIndex]];
+  });
+  refreshSequencerButtons();
+}
+
+function refreshSequencerButtons() {
+  const rows = sequencerGrid.querySelectorAll(".seq-row");
+
+  rows.forEach((rowEl, rowIndex) => {
+    const steps = rowEl.querySelectorAll(".step");
+
+    steps.forEach((stepEl, stepIndex) => {
+      stepEl.classList.toggle("active", !!drumRows[rowIndex].pattern[stepIndex]);
+    });
+  });
+}
+
+function refreshSynthButtons() {
+  const selects = synthGrid.querySelectorAll("select");
+
+  selects.forEach((select, index) => {
+    select.value = synthPattern[index];
+  });
+}
+
+function startRecording() {
+  if (isRecording) return;
+
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
+
+  mediaRecorder.ondataavailable = event => {
+    if (event.data.size > 0) recordedChunks.push(event.data);
+  };
+
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: "audio/webm" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `signal-studio-recording-${Date.now()}.webm`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+    statusEl.textContent = "Recording exported.";
+  };
+
+  mediaRecorder.start();
+  isRecording = true;
+  statusEl.textContent = "Recording...";
+}
+
+function stopRecording() {
+  if (!isRecording || !mediaRecorder) return;
+  mediaRecorder.stop();
+  isRecording = false;
+}
+
 function createToneBuffer(freq, duration) {
   const sampleRate = audioContext.sampleRate;
   const buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
@@ -502,6 +573,7 @@ function createToneBuffer(freq, duration) {
   for (let i = 0; i < data.length; i++) {
     data[i] = Math.sin((i / sampleRate) * freq * Math.PI * 2) * .3;
   }
+
   return buffer;
 }
 
@@ -514,6 +586,7 @@ function createPulseBuffer(freq, duration) {
     const wave = Math.sin((i / sampleRate) * freq * Math.PI * 2);
     data[i] = wave > 0 ? .4 : -.4;
   }
+
   return buffer;
 }
 
@@ -525,6 +598,7 @@ function createNoiseBuffer(duration) {
   for (let i = 0; i < data.length; i++) {
     data[i] = (Math.random() * 2 - 1) * .15;
   }
+
   return buffer;
 }
 
@@ -540,6 +614,7 @@ function createKickBuffer() {
     const env = Math.pow(1 - t / duration, 3);
     data[i] = Math.sin(2 * Math.PI * freq * t) * env;
   }
+
   return buffer;
 }
 
@@ -554,6 +629,7 @@ function createSnareBuffer() {
     const env = Math.pow(1 - t / duration, 2);
     data[i] = (Math.random() * 2 - 1) * env * .5;
   }
+
   return buffer;
 }
 
@@ -568,65 +644,24 @@ function createHatBuffer() {
     const env = Math.pow(1 - t / duration, 4);
     data[i] = (Math.random() * 2 - 1) * env * .35;
   }
+
   return buffer;
 }
 
-const presets = {
-  basic: [
-    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
-    [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
-    [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]
-  ],
-  industrial: [
-    [1,0,0,1,1,0,0,1,1,0,1,0,1,0,0,1],
-    [0,0,1,0,0,1,0,0,0,0,1,0,0,1,0,0],
-    [1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,1]
-  ],
-  ritual: [
-    [1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0],
-    [0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1],
-    [1,0,0,1,0,1,0,0,1,0,0,1,0,1,0,0]
-  ]
-};
-
-function applyPattern(patternSet) {
-  drumRows.forEach((row, rowIndex) => {
-    row.pattern = [...patternSet[rowIndex]];
-  });
-
-  refreshSequencerButtons();
-}
-
-  buildSynthSequencer();
-
-document.getElementById("randomizeSynth").addEventListener("click", () => {
-  synthPattern = synthPattern.map(() => {
-    return Math.random() > 0.45
-      ? synthNotes[Math.floor(Math.random() * (synthNotes.length - 1)) + 1]
-      : "";
-  });
-
-  refreshSynthButtons();
-  statusEl.textContent = "Synth pattern randomized.";
+document.getElementById("playBtn").addEventListener("click", async () => {
+  await audioContext.resume();
+  stopTransport();
+  startTransport();
 });
 
-document.getElementById("clearSynth").addEventListener("click", () => {
-  synthPattern = synthPattern.map(() => "");
-  refreshSynthButtons();
-  statusEl.textContent = "Synth pattern cleared.";
+document.getElementById("stopBtn").addEventListener("click", stopTransport);
+
+document.getElementById("recordBtn").addEventListener("click", async () => {
+  await audioContext.resume();
+  startRecording();
 });
 
-function refreshSequencerButtons() {
-  const rows = document.querySelectorAll(".seq-row");
-
-  rows.forEach((rowEl, rowIndex) => {
-    const steps = rowEl.querySelectorAll(".step");
-
-    steps.forEach((stepEl, stepIndex) => {
-      stepEl.classList.toggle("active", !!drumRows[rowIndex].pattern[stepIndex]);
-    });
-  });
-}
+document.getElementById("stopRecordBtn").addEventListener("click", stopRecording);
 
 document.getElementById("presetBasic").addEventListener("click", () => {
   applyPattern(presets.basic);
@@ -647,7 +682,6 @@ document.getElementById("randomizePattern").addEventListener("click", () => {
   drumRows.forEach(row => {
     row.pattern = row.pattern.map(() => Math.random() > 0.65 ? 1 : 0);
   });
-
   refreshSequencerButtons();
   statusEl.textContent = "Pattern randomized.";
 });
@@ -656,7 +690,6 @@ document.getElementById("clearPattern").addEventListener("click", () => {
   drumRows.forEach(row => {
     row.pattern = row.pattern.map(() => 0);
   });
-
   refreshSequencerButtons();
   statusEl.textContent = "Pattern cleared.";
 });
@@ -664,30 +697,48 @@ document.getElementById("clearPattern").addEventListener("click", () => {
 document.getElementById("savePattern").addEventListener("click", () => {
   const savedPattern = drumRows.map(row => row.pattern);
   localStorage.setItem("signalStudioPattern", JSON.stringify(savedPattern));
+  localStorage.setItem("signalStudioSynthPattern", JSON.stringify(synthPattern));
   statusEl.textContent = "Pattern saved to browser.";
 });
 
 document.getElementById("loadPattern").addEventListener("click", () => {
-  const saved = localStorage.getItem("signalStudioPattern");
+  const savedDrums = localStorage.getItem("signalStudioPattern");
+  const savedSynth = localStorage.getItem("signalStudioSynthPattern");
 
-  if (!saved) {
+  if (!savedDrums) {
     statusEl.textContent = "No saved pattern found.";
     return;
   }
 
-  applyPattern(JSON.parse(saved));
+  applyPattern(JSON.parse(savedDrums));
+
+  if (savedSynth) {
+    synthPattern = JSON.parse(savedSynth);
+    refreshSynthButtons();
+  }
+
   statusEl.textContent = "Saved pattern loaded.";
 });
-  
-document.getElementById("playBtn").addEventListener("click", async () => {
-  await audioContext.resume();
-  stopTransport();
-  startTransport();
+
+document.getElementById("randomizeSynth").addEventListener("click", () => {
+  synthPattern = synthPattern.map(() => {
+    return Math.random() > 0.45
+      ? synthNotes[Math.floor(Math.random() * (synthNotes.length - 1)) + 1]
+      : "";
+  });
+
+  refreshSynthButtons();
+  statusEl.textContent = "Synth pattern randomized.";
 });
 
-document.getElementById("stopBtn").addEventListener("click", stopTransport);
+document.getElementById("clearSynth").addEventListener("click", () => {
+  synthPattern = synthPattern.map(() => "");
+  refreshSynthButtons();
+  statusEl.textContent = "Synth pattern cleared.";
+});
 
 buildSequencer();
+buildSynthSequencer();
 
 for (let i = 0; i < 4; i++) {
   createTrack(i);
