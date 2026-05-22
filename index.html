@@ -313,6 +313,7 @@ function scheduleStep(stepNumber, time) {
   const beatInBar = Math.floor(stepNumber / 4);
   const barNumber = Math.floor(currentBeat / stepsPerBar) + 1;
 
+  
   setTimeout(() => {
     beatDisplay.textContent = `BAR ${barNumber} : BEAT ${beatInBar + 1}`;
     highlightStep(stepNumber);
@@ -321,7 +322,7 @@ function scheduleStep(stepNumber, time) {
   drumRows.forEach(row => {
     if (row.pattern[stepNumber]) playBuffer(row.sound, time, 0.85);
   });
-
+playSynthNote(synthPattern[stepNumber], time);
   if (metronomeToggle.checked && stepNumber % 4 === 0) {
     playClick(time, stepNumber === 0);
   }
@@ -378,6 +379,96 @@ function playClick(time, strong) {
 
   osc.start(time);
   osc.stop(time + .05);
+}
+
+  function buildSynthSequencer() {
+  const rowEl = document.createElement("div");
+  rowEl.className = "seq-row";
+  rowEl.innerHTML = `<div class="seq-label">BASS</div>`;
+
+  synthPattern.forEach((note, stepIndex) => {
+    const wrap = document.createElement("div");
+    wrap.className = "synth-step";
+
+    const select = document.createElement("select");
+    select.dataset.step = stepIndex;
+
+    synthNotes.forEach(noteName => {
+      const option = document.createElement("option");
+      option.value = noteName;
+      option.textContent = noteName || "--";
+      if (noteName === note) option.selected = true;
+      select.appendChild(option);
+    });
+
+    select.addEventListener("change", () => {
+      synthPattern[stepIndex] = select.value;
+    });
+
+    wrap.appendChild(select);
+    rowEl.appendChild(wrap);
+  });
+
+  synthGrid.appendChild(rowEl);
+}
+
+function noteToFrequency(note) {
+  const noteMap = {
+    C: 0, "C#": 1, Db: 1,
+    D: 2, "D#": 3, Eb: 3,
+    E: 4,
+    F: 5, "F#": 6, Gb: 6,
+    G: 7, "G#": 8, Ab: 8,
+    A: 9, "A#": 10, Bb: 10,
+    B: 11
+  };
+
+  const match = note.match(/^([A-G][b#]?)(\d)$/);
+  if (!match) return null;
+
+  const pitch = match[1];
+  const octave = Number(match[2]);
+
+  const midi = 12 * (octave + 1) + noteMap[pitch];
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function playSynthNote(note, time) {
+  const frequency = noteToFrequency(note);
+  if (!frequency) return;
+
+  const osc = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  const filter = audioContext.createBiquadFilter();
+
+  const volume = Number(document.getElementById("synthVolume").value);
+  const wave = document.getElementById("synthWave").value;
+
+  osc.type = wave;
+  osc.frequency.setValueAtTime(frequency, time);
+
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(900, time);
+  filter.Q.setValueAtTime(8, time);
+
+  gain.gain.setValueAtTime(0.001, time);
+  gain.gain.exponentialRampToValueAtTime(volume, time + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + secondsPerStep() * 0.9);
+
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(audioContext.destination);
+
+  osc.start(time);
+  osc.stop(time + secondsPerStep() * 0.95);
+}
+
+function refreshSynthButtons() {
+  const selects = synthGrid.querySelectorAll("select");
+
+  selects.forEach((select, index) => {
+    select.value = synthPattern[index];
+  });
 }
 
 function highlightStep(stepNumber) {
@@ -505,6 +596,25 @@ function applyPattern(patternSet) {
 
   refreshSequencerButtons();
 }
+
+  buildSynthSequencer();
+
+document.getElementById("randomizeSynth").addEventListener("click", () => {
+  synthPattern = synthPattern.map(() => {
+    return Math.random() > 0.45
+      ? synthNotes[Math.floor(Math.random() * (synthNotes.length - 1)) + 1]
+      : "";
+  });
+
+  refreshSynthButtons();
+  statusEl.textContent = "Synth pattern randomized.";
+});
+
+document.getElementById("clearSynth").addEventListener("click", () => {
+  synthPattern = synthPattern.map(() => "");
+  refreshSynthButtons();
+  statusEl.textContent = "Synth pattern cleared.";
+});
 
 function refreshSequencerButtons() {
   const rows = document.querySelectorAll(".seq-row");
