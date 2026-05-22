@@ -125,6 +125,20 @@ select{background:#12061a;color:#f3d7ff;border:1px solid rgba(255,45,149,.25);pa
 </div>
 
 <script>
+
+  const synthGrid = document.getElementById("synthGrid");
+
+const synthNotes = [
+  "", "C2", "D2", "Eb2", "F2", "G2", "Ab2", "Bb2",
+  "C3", "D3", "Eb3", "F3", "G3", "Ab3", "Bb3", "C4"
+];
+
+let synthPattern = [
+  "C2", "", "", "C2",
+  "G2", "", "", "Eb2",
+  "C2", "", "Bb2", "",
+  "Ab2", "", "G2", ""
+];
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 const tracksContainer = document.getElementById("tracks");
